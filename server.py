@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 
-queue_address = 'DB/queue.txt'
+queue_address = './DB/queue.txt'
 #A class for handling the queue through a file
 class Queue:
     def __init__(self, queue_address):
