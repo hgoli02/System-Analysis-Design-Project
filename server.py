@@ -84,7 +84,7 @@ def start_server(port=8888, address='127.0.0.1'):
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))
         client_handler.start()
 
-queue = Queue(queue_address, reset=False)
+queue = Queue(queue_address, reset=True)
 
 if __name__ == "__main__":
     #define the parser

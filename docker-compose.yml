@@ -1,0 +1,14 @@
+services:
+  queue:
+    container_name: kalhossein
+    image: kalhasti:latest
+    ports:
+      - 8888:8888
+    command: python server.py
+networks:
+    backend:
+      driver: bridge
+      driver_opts:
+        com.docker.network.driver.mtu: 1400
+    
+
