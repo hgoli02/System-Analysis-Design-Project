@@ -4,11 +4,4 @@ services:
     image: kalhasti:latest
     ports:
       - 8888:8888
-    command: python server.py
-networks:
-    backend:
-      driver: bridge
-      driver_opts:
-        com.docker.network.driver.mtu: 1400
-    
-
+    command: python3 server_flask.py
