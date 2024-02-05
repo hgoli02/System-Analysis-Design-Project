@@ -61,4 +61,4 @@ def push_message():
         return "No message received", 400
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8888)
+    app.run(debug=True, port=8899, host="0.0.0.0")

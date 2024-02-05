@@ -3,5 +3,5 @@ services:
     container_name: kalhossein
     image: kalhasti:latest
     ports:
-      - 8888:8888
+      - 8899:8899
     command: python3 server_flask.py

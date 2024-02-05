@@ -26,7 +26,7 @@ def subscribe(url):
     thread.start()
 
 if __name__ == '__main__':
-    server_url = 'http://127.0.0.1:8888'
+    server_url = 'http://127.0.0.1:8899'
     while True:
         data = input(' -> ')
         if data == "get":

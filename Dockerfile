@@ -9,5 +9,5 @@ RUN apt-get update \
 
 COPY . /app
 WORKDIR /app
-EXPOSE 8888
+EXPOSE 8899
 CMD sleep 10000
