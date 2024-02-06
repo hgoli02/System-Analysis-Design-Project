@@ -15,10 +15,17 @@ def sha256(s):
 
 @app.route('/push', methods=['POST'])
 def push():
-    inp = request.data.decode('utf-8')
-    app.logger.debug(f"Body is: {inp}")
-    hash = int(sha256(inp),base=16) % len(list_nodes)
-    return str(hash)
+    data = request.data.decode('utf-8')
+    key, value = data.split(',')
+    app.logger.debug(f"Body is: {data}")
+    hash = int(sha256(key),base=16) % len(list_nodes)
+    url = list_nodes[hash] + ":" + list_nodes[hash]
+    response = requests.get(url + "/push", data=value)
+    return response
+
+
+
+
 
 if __name__ == "__main__":
     app.logger.debug("Debug log level")
