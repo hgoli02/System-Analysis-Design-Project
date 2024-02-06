@@ -8,7 +8,7 @@ def push(url, message):
     return response.text
 
 def pull(url):
-    response = requests.get(url + '/get')
+    response = requests.get(url + '/pull')
     print('Received from server: ' + response.text)
     return response.text
 
@@ -26,7 +26,7 @@ def subscribe(url):
     thread.start()
 
 if __name__ == '__main__':
-    server_url = 'http://127.0.0.1:8899'
+    server_url = 'http://127.0.0.1:8000'
     while True:
         data = input(' -> ')
         if data == "get":

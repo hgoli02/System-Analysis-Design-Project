@@ -6,7 +6,7 @@ import requests
 
 app = Flask(__name__)
 
-list_nodes = [("localhost", "8890"), ("localhost", "8891"), ("localhost", "8892")] # should get from docker_env
+list_nodes = [("http://172.27.53.146", "8890")]#, ("localhost", "8891"), ("localhost", "8892")] # should get from docker_env
 
 
 
@@ -20,8 +20,26 @@ def push():
     app.logger.debug(f"Body is: {data}")
     hash = int(sha256(key),base=16) % len(list_nodes)
     url = list_nodes[hash][0] + ":" + list_nodes[hash][1]
-    response = requests.get(url + "/push", data=value)
-    return response
+    response = requests.post(url + "/push", data=value)
+    
+    return response.text
+
+
+@app.route('/pull', methods=['GET'])
+def pull():
+    
+    rd = random.randint(0, len(list_nodes) - 1)
+    for i in range(len(list_nodes)):
+        nw = (i + rd) % len(list_nodes)
+        url = list_nodes[nw][0] + ":" + list_nodes[nw][1]
+        response = requests.get(url + "/pull")
+        if response != '$$':
+            return response
+    return 'no message'
+
+    
+
+    
 
 
 

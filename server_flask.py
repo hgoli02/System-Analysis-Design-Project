@@ -36,9 +36,9 @@ class Queue:
 
 queue = Queue(queue_address, reset=True)
 
-@app.route('/get', methods=['GET'])
+@app.route('/pull', methods=['GET'])
 def get_message():
-    response = "No messages" if len(queue) <= 0 else queue.pop()
+    response = "$$" if len(queue) <= 0 else queue.pop()
     return response
 
 @app.route('/subscribe', methods=['GET'])
@@ -61,4 +61,4 @@ def push_message():
         return "No message received", 400
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8899, host="0.0.0.0")
+    app.run(debug=True, port=8890, host="0.0.0.0")
