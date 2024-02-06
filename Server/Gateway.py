@@ -1,15 +1,14 @@
-from flask import Flask, request, logging
+from flask import Flask, request
 import os
 import random
 import hashlib 
-import logging
+import requests
 
 app = Flask(__name__)
-app.logger.setLevel(logging.DEBUG)
-
-queue_address = './DB/queue.txt'
 
 list_nodes = [("localhost", "8890"), ("localhost", "8891"), ("localhost", "8892")] # should get from docker_env
+
+
 
 def sha256(s):
     return hashlib.sha256(s.encode('utf-8')).hexdigest()
