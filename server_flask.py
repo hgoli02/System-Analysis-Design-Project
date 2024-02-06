@@ -1,5 +1,6 @@
 from flask import Flask, request
 import os
+import argparse
 
 app = Flask(__name__)
 queue_address = './DB/queue.txt'
@@ -61,4 +62,7 @@ def push_message():
         return "No message received", 400
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8891, host="0.0.0.0")
+    parser = argparse.ArgumentParser(description='Server for a simple message queue')
+    parser.add_argument('--port', type=int, default=8891, help='Port number for the server')
+    args = parser.parse_args()
+    app.run(debug=True, port=args.port, host="0.0.0.0")
