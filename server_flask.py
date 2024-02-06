@@ -1,10 +1,13 @@
 from flask import Flask, request
 import os
 import argparse
+import logging
 
 app = Flask(__name__)
 # queue_address = './DB/queue.txt'
 queue_address = './DB/'
+
+app.logger.setLevel(logging.INFO)
 
 # A class for handling the queue through a file
 class Queue:
@@ -17,8 +20,7 @@ class Queue:
         self.datapointer = 0
 
     def __len__(self):
-        with open(self.queue_address, 'r') as f:
-            return len(f.readlines())
+        return self.length
 
     def push(self, message):
         with open(self.queue_address, 'a') as f:
@@ -32,7 +34,7 @@ class Queue:
         with open(self.queue_address, 'r') as f:
             f.seek(self.datapointer)
             message = f.readline().strip()
-            self.datapointer += len(message) + 2
+            self.datapointer += len(message) + 1
             self.length -= 1
             return message
 
@@ -41,17 +43,9 @@ class Queue:
 @app.route('/pull', methods=['GET'])
 def get_message():
     response = "$$" if len(queue) <= 0 else queue.pop()
-    return response
 
-@app.route('/subscribe', methods=['GET'])
-def subscribe():
-    # Implement subscription logic here
-    # This is a simplistic example; adjust according to your needs
-    if len(queue) <= 0:
-        return "No messages"
-    else:
-        response = queue.pop()
-        return response
+    app.logger.info(f"pull returning response: {response}")
+    return response
 
 @app.route('/push', methods=['POST'])
 def push_message():
@@ -66,6 +60,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server for a simple message queue')
     parser.add_argument('--port', type=int, default=8891, help='Port number for the server')
     parser.add_argument('--queue', type=str, default='queue.txt', help='Port number for the server')
+
     args = parser.parse_args()
     port = args.port
     queue_address += args.queue

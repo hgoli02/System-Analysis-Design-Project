@@ -1,7 +1,19 @@
 services:
   queue:
-    container_name: kalhossein
+    image: kalhasti:latest
+    command: python3 server_flask.py --port 8890 --queue db1
+    deploy:
+      mode: replicated
+      replicas: 2
+
+  # queue2:
+  #   container_name: broker2
+  #   image: kalhasti:latest
+  #   command: python3 server_flask.py --port 8890 --queue db2
+
+  gateway:
+    container_name: gateway
     image: kalhasti:latest
     ports:
-      - 8899:8899
-    command: python3 server_flask.py
+      - 8000:8000
+    command: python3 Server/Gateway.py

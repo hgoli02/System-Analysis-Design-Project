@@ -7,8 +7,8 @@ import logging
 
 app = Flask(__name__)
 
-app.logger.setLevel(logging.DEBUG)
-list_nodes = [("http://172.27.53.146", "8890"), ("http://172.27.53.146", "8891")]#, ("localhost", "8892")] # should get from docker_env
+app.logger.setLevel(logging.INFO)
+list_nodes = [("http://system-analysis-design-project-queue-1", "8890"), ("http://system-analysis-design-project-queue-2", "8890")]#, ("localhost", "8892")] # should get from docker_env
 
 
 
@@ -21,8 +21,8 @@ def push():
     key, value = data.split(',')
     hash = int(sha256(key),base=16) % len(list_nodes)
     url = list_nodes[hash][0] + ":" + list_nodes[hash][1] + "/push"
-    app.logger.debug(f"url is: {url}")
-    app.logger.debug(f"value is: {value}")
+    app.logger.info(f"url is: {url}")
+    app.logger.info(f"value is: {value}")
 
     response = requests.post(url , data=value)
     # return "1"
@@ -38,6 +38,7 @@ def pull():
         nw = (i + rd) % len(list_nodes)
         url = list_nodes[nw][0] + ":" + list_nodes[nw][1]
         response = requests.get(url + "/pull")
+        app.logger.info(f"request from {url}, response: {response.text}")
         if response.text != '$$':
             return response.text
     return 'no message'
