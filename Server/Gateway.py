@@ -19,7 +19,7 @@ def push():
     key, value = data.split(',')
     app.logger.debug(f"Body is: {data}")
     hash = int(sha256(key),base=16) % len(list_nodes)
-    url = list_nodes[hash] + ":" + list_nodes[hash]
+    url = list_nodes[hash][0] + ":" + list_nodes[hash][1]
     response = requests.get(url + "/push", data=value)
     return response
 
