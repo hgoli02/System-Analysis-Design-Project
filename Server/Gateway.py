@@ -3,10 +3,12 @@ import os
 import random
 import hashlib 
 import requests
+import logging
 
 app = Flask(__name__)
 
-list_nodes = [("http://172.27.53.146", "8890")]#, ("localhost", "8891"), ("localhost", "8892")] # should get from docker_env
+app.logger.setLevel(logging.DEBUG)
+list_nodes = [("http://172.27.53.146", "8890"), ("http://172.27.53.146", "8891")]#, ("localhost", "8892")] # should get from docker_env
 
 
 
@@ -17,10 +19,13 @@ def sha256(s):
 def push():
     data = request.data.decode('utf-8')
     key, value = data.split(',')
-    app.logger.debug(f"Body is: {data}")
     hash = int(sha256(key),base=16) % len(list_nodes)
-    url = list_nodes[hash][0] + ":" + list_nodes[hash][1]
-    response = requests.post(url + "/push", data=value)
+    url = list_nodes[hash][0] + ":" + list_nodes[hash][1] + "/push"
+    app.logger.debug(f"url is: {url}")
+    app.logger.debug(f"value is: {value}")
+
+    response = requests.post(url , data=value)
+    # return "1"
     
     return response.text
 
@@ -33,16 +38,11 @@ def pull():
         nw = (i + rd) % len(list_nodes)
         url = list_nodes[nw][0] + ":" + list_nodes[nw][1]
         response = requests.get(url + "/pull")
-        if response != '$$':
-            return response
+        if response.text != '$$':
+            return response.text
     return 'no message'
 
     
-
-    
-
-
-
 
 
 if __name__ == "__main__":
