@@ -3,7 +3,8 @@ import os
 import argparse
 
 app = Flask(__name__)
-queue_address = './DB/queue.txt'
+# queue_address = './DB/queue.txt'
+queue_address = './DB/'
 
 # A class for handling the queue through a file
 class Queue:
@@ -35,7 +36,7 @@ class Queue:
             self.length -= 1
             return message
 
-queue = Queue(queue_address, reset=True)
+
 
 @app.route('/pull', methods=['GET'])
 def get_message():
@@ -64,6 +65,11 @@ def push_message():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server for a simple message queue')
     parser.add_argument('--port', type=int, default=8891, help='Port number for the server')
+    parser.add_argument('--queue', type=str, default='queue.txt', help='Port number for the server')
     args = parser.parse_args()
-    print(f"running on port: {args.port}")
-    app.run(debug=True, port=args.port, host="0.0.0.0")
+    port = args.port
+    queue_address += args.queue
+    print(f"running on port: {port}")
+    print(f"data is saved on: {queue_address}")
+    queue = Queue(queue_address, reset=True)
+    app.run(debug=False, port=port, host="0.0.0.0")
