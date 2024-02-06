@@ -65,4 +65,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server for a simple message queue')
     parser.add_argument('--port', type=int, default=8891, help='Port number for the server')
     args = parser.parse_args()
+    print(f"running on port: {args.port}")
     app.run(debug=True, port=args.port, host="0.0.0.0")
