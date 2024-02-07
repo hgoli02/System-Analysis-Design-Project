@@ -25,8 +25,8 @@ for i in range(int(NUMBER_OF_BROKERS)):
     list_nodes.append((BROKER_HOST + "-" + str(i+1), str(BROKER_PORT)))
 
 
-NUMBER_OF_COPIES = 10
-REPLICA_COUNT = 2
+NUMBER_OF_COPIES = os.environ.get('NUMBER_OF_COPIES', 5)
+REPLICA_COUNT = os.environ.get('REPLICA_COUNT', 2)
 
 hash_ring = []
 

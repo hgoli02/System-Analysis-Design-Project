@@ -12,7 +12,7 @@ queue_address = './DB/'
 app.logger.setLevel(logging.INFO)
 
 
-REPLICA_COUNT = 2
+REPLICA_COUNT = os.environ.get('REPLICA_COUNT', 2)
 
 # A class for handling the queue through a file
 class Queue:
