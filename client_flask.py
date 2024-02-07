@@ -19,7 +19,7 @@ def subscribe_runner(url):
         if data == "no message":
             time.sleep(1)
         else:
-            print(data)
+            print('Subscribed message: ' + data)
 
 def subscribe(url):
     thread = Thread(target=subscribe_runner, args=(url,))
@@ -28,7 +28,7 @@ def subscribe(url):
 if __name__ == '__main__':
     server_url = 'http://127.0.0.1:8000'
     while True:
-        data = input(' -> ')
+        data = input('waiting for input')
         if data == "get":
             pull(server_url)
         elif data == "subscribe":
