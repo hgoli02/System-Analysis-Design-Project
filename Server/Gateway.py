@@ -4,6 +4,7 @@ import random
 import hashlib 
 import requests
 import logging
+import bisect
 
 PORT = os.environ.get('PORT', 8000)
 BROKER_PORT = os.environ.get('BROKER_PORT', 8890)
@@ -14,42 +15,87 @@ app = Flask(__name__)
 
 app.logger.setLevel(logging.INFO)
 
+
 list_nodes = []
 for i in range(int(NUMBER_OF_BROKERS)):
     list_nodes.append((BROKER_HOST + "-" + str(i+1), str(BROKER_PORT)))
 
 
+NUMBER_OF_COPIES = 10
+REPLICA_COUNT = 2
 
+hash_ring = []
 
 def sha256(s):
     return hashlib.sha256(s.encode('utf-8')).hexdigest()
 
+def construct_consistent_hashing_ring():
+    num_nodes = len(list_nodes)
+    for i in range(num_nodes):
+        for j in range(NUMBER_OF_COPIES):
+            current_hash = int(sha256(str(i) + ";" + str(j)),base=16)
+            hash_ring.append([current_hash, i])
+            
+
+def find_next(key, rep, do_hash=True): # rep is in [0,REPLICA_COUNT)
+    if rep < 0 or rep >= REPLICA_COUNT:
+        raise ValueError(f'rep should be between{0} and {REPLICA_COUNT - 1} inclusive')
+    hash = key
+    if do_hash:
+        hash = int(sha256(hash, base=16))
+    pos = bisect.bisect_left(hash_ring, [hash,-1])
+    s = set()
+    for i in range(len(hash_ring)):
+        ps = (pos + i) % len(hash_ring)
+        s.add(hash_ring[ps][1])
+        if len(s == rep + 1):
+            return hash_ring[ps][1]
+
+
 @app.route('/push', methods=['POST'])
 def push():
     data = request.data.decode('utf-8')
+    if len(data.split(',') != 1):
+        msg = 'ERROR: there should be exactly one comma (,) in the data between key and value'
+        app.logger.info(msg)
+        return msg
     key, value = data.split(',')
-    hash = int(sha256(key),base=16) % len(list_nodes)
-    url = list_nodes[hash][0] + ":" + list_nodes[hash][1] + "/push"
-    app.logger.info(f"url is: {url}")
-    app.logger.info(f"value is: {value}")
 
-    response = requests.post(url , data=value)
-    # return "1"
+    for i in range(REPLICA_COUNT):
+        data = {'value': value, 'queue': i}
+        node = find_next(key, i)
+        url = list_nodes[node][0] + ":" + list_nodes[node][1] + "/push"
+        try:
+            response = requests.post(url , json=data)
+        except Exception as e:
+            app.logger.info(f"tried to push to f{url} with data=f{data} but caught error {e}")
+        app.logger.info(f"for replica {i} url is: {url}")
+        app.logger.info(f"for replica {i} value is: {value}")
     
-    return response.text
+    return 'done' # TODO: should fix
 
 
 @app.route('/pull', methods=['GET'])
 def pull():
-    
-    rd = random.randint(0, len(list_nodes) - 1)
-    for i in range(len(list_nodes)):
-        nw = (i + rd) % len(list_nodes)
-        url = list_nodes[nw][0] + ":" + list_nodes[nw][1]
-        response = requests.get(url + "/pull")
-        app.logger.info(f"request from {url}, response: {response.text}")
-        if response.text != '$$':
-            return response.text
+    rd = random.randint(0, len(hash_ring) - 1)
+    for i in range(len(hash_ring)):
+        nw = (i + rd) % len(hash_ring)
+        succeed = False
+        ret = "$$"
+        for j in range(REPLICA_COUNT):
+            nxt = find_next(hash_ring[nw][0], j, False)
+            url = list_nodes[nxt][0] + ":" + list_nodes[nxt][1]
+            data = {"queue" : f"{j}"}
+            try:
+                response = requests.get(url + "/pull", params=data, timeout=30)
+            except Exception as e:
+                app.logger.info(f"tried to pull from f{url} with data=f{data} but caught error {e}")
+            if response == '$$':
+                break 
+            succeed = True
+            ret = response.text
+        if ret != "$$":
+            return ret
     return 'no message'
 
     
@@ -62,4 +108,8 @@ if __name__ == "__main__":
     app.logger.error("Error!")
     app.logger.critical("Program halt!")
     app.logger.info(f"PORT is: {PORT}")
+    construct_consistent_hashing_ring()
     app.run(debug=True, port=PORT, host="0.0.0.0", threaded=True)
+
+
+

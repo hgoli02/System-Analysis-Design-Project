@@ -10,6 +10,9 @@ queue_address = './DB/'
 
 app.logger.setLevel(logging.INFO)
 
+
+REPLICA_COUNT = 2
+
 # A class for handling the queue through a file
 class Queue:
     def __init__(self, queue_address, reset=False):
@@ -46,16 +49,22 @@ class Queue:
 
 @app.route('/pull', methods=['GET'])
 def get_message():
-    response = "$$" if len(queue) <= 0 else queue.pop()
+    
+    queue_num = int(request.args['queue'])
+
+    response = "$$" if len(queues[queue_num]) <= 0 else queues[queue_num].pop()
 
     app.logger.info(f"pull returning response: {response}")
     return response
 
 @app.route('/push', methods=['POST'])
 def push_message():
-    message = request.data.decode('utf-8')
-    if message:
-        queue.push(message)
+    data = request.get_json()
+
+    value = data.get('value', 'error')
+    queue_num = int(data.get('queue', 'error'))
+    if value != 'error':
+        queues[queue_num].push(value)
         return "OK"
     else:
         return "No message received", 400
@@ -70,5 +79,7 @@ if __name__ == "__main__":
     queue_address += args.queue
     print(f"running on port: {port}")
     print(f"data is saved on: {queue_address}")
-    queue = Queue(queue_address, reset=True)
+    queues = []
+    for i in range(REPLICA_COUNT):
+        queues.append(Queue(queue_address + f"{i}.txt"))
     app.run(debug=False, port=port, host="0.0.0.0")
