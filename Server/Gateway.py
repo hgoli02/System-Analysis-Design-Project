@@ -25,7 +25,7 @@ for i in range(int(NUMBER_OF_BROKERS)):
     list_nodes.append((BROKER_HOST + "-" + str(i+1), str(BROKER_PORT)))
 
 
-NUMBER_OF_COPIES = 1
+NUMBER_OF_COPIES = 10
 REPLICA_COUNT = 2
 
 hash_ring = []
@@ -103,10 +103,6 @@ def pull():
         nw = (i + rd) % len(hash_ring)
         ret = "$$"
         for j in range(REPLICA_COUNT):
-            if j == 0:
-                if hash_ring[nw][1] in s:
-                    break
-                s.add(hash_ring[nw][1])
             nxt, ps = find_next(hash_ring[nw][0], j, False)
             url = list_nodes[nxt][0] + ":" + list_nodes[nxt][1]
             data = {"queue" : f"{j}", "position" : ps}
