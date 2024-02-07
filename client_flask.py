@@ -28,10 +28,10 @@ def subscribe(url):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Client for a simple message queue')
-    parser.add_argument('server_url', help='The URL of the server')
+    parser.add_argument('--server_url', type=str ,help='The URL of the server', default='localhost')
     parser.add_argument('--port', type=int, default=8000, help='Port number for the server')
     args = parser.parse_args()
-    server_url = 'http://127.0.0.1:'+str(args.port) if args.server_url == 'localhost' else args.server_url
+    server_url = 'http://127.0.0.1:'+str(args.port) if args.server_url == 'localhost' else args.server_url 
     while True:
         data = input('waiting for input: \n')
         if data == "get":

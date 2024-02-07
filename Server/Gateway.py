@@ -9,24 +9,21 @@ from pythonping import ping
 import threading
 import time
 
-PORT = os.environ.get('PORT', 8000)
-BROKER_PORT = os.environ.get('BROKER_PORT', 8890)
+PORT = int(os.environ.get('PORT', 8000))
+BROKER_PORT = int(os.environ.get('BROKER_PORT', 8890))
 BROKER_HOST = os.environ.get('BROKER_HOST', "http://system-analysis-design-project-queue")
 NUMBER_OF_BROKERS = int(os.environ.get('NUMBER_OF_BROKERS', 2))
+NUMBER_OF_COPIES = int(os.environ.get('NUMBER_OF_COPIES', 5))
+REPLICA_COUNT = int(os.environ.get('REPLICA_COUNT', 2))
 
 app = Flask(__name__)
 
 app.logger.setLevel(logging.INFO)
 
-
 list_nodes = []
 alive_nodes = [True] * int(NUMBER_OF_BROKERS)
 for i in range(int(NUMBER_OF_BROKERS)):
     list_nodes.append((BROKER_HOST + "-" + str(i+1), str(BROKER_PORT)))
-
-
-NUMBER_OF_COPIES = os.environ.get('NUMBER_OF_COPIES', 5)
-REPLICA_COUNT = os.environ.get('REPLICA_COUNT', 2)
 
 hash_ring = []
 
