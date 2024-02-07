@@ -28,7 +28,7 @@ def subscribe(url):
 if __name__ == '__main__':
     server_url = 'http://127.0.0.1:8000'
     while True:
-        data = input('waiting for input')
+        data = input('waiting for input: \n')
         if data == "get":
             pull(server_url)
         elif data == "subscribe":

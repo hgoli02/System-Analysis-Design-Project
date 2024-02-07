@@ -2,6 +2,7 @@ from flask import Flask, request
 import os
 import argparse
 import logging
+from threading import Lock
 
 app = Flask(__name__)
 # queue_address = './DB/queue.txt'
@@ -18,25 +19,28 @@ class Queue:
                 pass
         self.length = 0
         self.datapointer = 0
+        self.lock = Lock()
 
     def __len__(self):
         return self.length
 
     def push(self, message):
-        with open(self.queue_address, 'a') as f:
-            f.write(message + '\n')
-            self.length += 1
+        with self.lock:
+            with open(self.queue_address, 'a') as f:
+                f.write(message + '\n')
+                self.length += 1
 
     def pop(self):
-        if self.length <= 0:
-            return "No messages"
+        with self.lock:
+            if self.length <= 0:
+                return "No messages"
 
-        with open(self.queue_address, 'r') as f:
-            f.seek(self.datapointer)
-            message = f.readline().strip()
-            self.datapointer += len(message) + 1
-            self.length -= 1
-            return message
+            with open(self.queue_address, 'r') as f:
+                f.seek(self.datapointer)
+                message = f.readline().strip()
+                self.datapointer += len(message) + 1
+                self.length -= 1
+                return message
 
 
 
