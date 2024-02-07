@@ -52,8 +52,9 @@ class Queue:
 def get_message():
     
     queue_num = int(request.args['queue'])
+    position = int(request.args['position'])
 
-    response = "$$" if len(queues[queue_num]) <= 0 else queues[queue_num].pop()
+    response = "$$" if len(queues[(queue_num,position)]) <= 0 else queues[queue_num].pop()
 
     app.logger.info(f"pull returning response: {response}")
     return response
@@ -64,8 +65,11 @@ def push_message():
 
     value = data.get('value', 'error')
     queue_num = int(data.get('queue', 'error'))
+    position = int(data.get('position', 'error'))
     if value != 'error':
-        queues[queue_num].push(value)
+        if not queues[(queue_num, position)]:
+            queues[(queue_num, position)] = Queue(queue_address + f"{queue_num}_{position}.txt")
+        queues[(queue_num, position)].push(value)
         return "OK"
     else:
         return "No message received", 400
@@ -84,7 +88,7 @@ if __name__ == "__main__":
     queue_address += args.queue
     print(f"running on port: {port}")
     print(f"data is saved on: {queue_address}")
-    queues = []
-    for i in range(REPLICA_COUNT):
-        queues.append(Queue(queue_address + f"{i}.txt"))
+    queues = {}
+    # for i in range(REPLICA_COUNT):
+    #     queues.append(Queue(queue_address + f"{i}.txt"))
     app.run(debug=False, port=port, host="0.0.0.0")

@@ -69,7 +69,7 @@ def find_next(key, rep, do_hash=True): # rep is in [0,REPLICA_COUNT)
         ps = (pos + i) % len(hash_ring)
         s.add(hash_ring[ps][1])
         if len(s) == rep + 1:
-            return hash_ring[ps][1]
+            return hash_ring[ps][1], ps
 
 
 @app.route('/push', methods=['POST'])
@@ -82,8 +82,8 @@ def push():
     key, value = data.split(',')
 
     for i in range(REPLICA_COUNT):
-        data = {'value': value, 'queue': i}
-        node = find_next(key, i)
+        node, ps = find_next(key, i)
+        data = {'value': value, 'queue': i, 'position': ps}
         url = list_nodes[node][0] + ":" + list_nodes[node][1] + "/push"
         if alive_nodes[node]:
             try:
@@ -103,9 +103,13 @@ def pull():
         nw = (i + rd) % len(hash_ring)
         ret = "$$"
         for j in range(REPLICA_COUNT):
-            nxt = find_next(hash_ring[nw][0], j, False)
+            if j == 0:
+                if hash_ring[nw][1] in s:
+                    break
+                s.add(hash_ring[nw][1])
+            nxt, ps = find_next(hash_ring[nw][0], j, False)
             url = list_nodes[nxt][0] + ":" + list_nodes[nxt][1]
-            data = {"queue" : f"{j}"}
+            data = {"queue" : f"{j}", "position" : ps}
             if alive_nodes[nxt]:
                 try:
                     response = requests.get(url + "/pull", params=data, timeout=0.002)
