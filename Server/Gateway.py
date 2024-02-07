@@ -12,7 +12,7 @@ import time
 PORT = os.environ.get('PORT', 8000)
 BROKER_PORT = os.environ.get('BROKER_PORT', 8890)
 BROKER_HOST = os.environ.get('BROKER_HOST', "http://system-analysis-design-project-queue")
-NUMBER_OF_BROKERS = os.environ.get('NUMBER_OF_BROKERS', 2)
+NUMBER_OF_BROKERS = int(os.environ.get('NUMBER_OF_BROKERS', 2))
 
 app = Flask(__name__)
 
@@ -25,7 +25,7 @@ for i in range(int(NUMBER_OF_BROKERS)):
     list_nodes.append((BROKER_HOST + "-" + str(i+1), str(BROKER_PORT)))
 
 
-NUMBER_OF_COPIES = 10
+NUMBER_OF_COPIES = 1
 REPLICA_COUNT = 2
 
 hash_ring = []
@@ -41,12 +41,11 @@ def is_alive(url):
         app.logger.info(f"tried to ping {url} but caught error {e}")
         return False
 
-def upadte_nodes():
+def upadte_nodes(i):
     while True:
-        for i in range(len(list_nodes)):
-            alive_nodes[i] = is_alive(list_nodes[i][0] + ":" + list_nodes[i][1])
-        app.logger.info(f"alive_nodes: {alive_nodes}")
-        time.sleep(5)
+        alive_nodes[i] = is_alive(list_nodes[i][0] + ":" + list_nodes[i][1])
+        app.logger.info(f"node {i} aliveness: {alive_nodes[i]}")
+        time.sleep(10)
 
 
 def construct_consistent_hashing_ring():
@@ -100,15 +99,10 @@ def push():
 @app.route('/pull', methods=['GET'])
 def pull():
     rd = random.randint(0, len(hash_ring) - 1)
-    s = set()
     for i in range(len(hash_ring)):
         nw = (i + rd) % len(hash_ring)
         ret = "$$"
         for j in range(REPLICA_COUNT):
-            if j == 0:
-                if hash_ring[nw][1] in s:
-                    break
-                s.add(hash_ring[nw][1])
             nxt = find_next(hash_ring[nw][0], j, False)
             url = list_nodes[nxt][0] + ":" + list_nodes[nxt][1]
             data = {"queue" : f"{j}"}
@@ -136,9 +130,9 @@ if __name__ == "__main__":
     app.logger.critical("Program halt!")
     app.logger.info(f"PORT is: {PORT}")
     construct_consistent_hashing_ring()
-    #create a thread to update the alive nodes every 60 seconds
-    t = threading.Thread(target=upadte_nodes)
-    t.start()
+    for i in range(NUMBER_OF_BROKERS):
+        t = threading.Thread(target=upadte_nodes, args=([i]))
+        t.start()
     # app.logger.info("hash_ring is: " + str(hash_ring))
     app.run(debug=True, port=PORT, host="0.0.0.0", threaded=True)
 
