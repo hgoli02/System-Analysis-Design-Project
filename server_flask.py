@@ -3,6 +3,7 @@ import os
 import argparse
 import logging
 from threading import Lock
+import pythonping
 
 app = Flask(__name__)
 # queue_address = './DB/queue.txt'
@@ -68,6 +69,10 @@ def push_message():
         return "OK"
     else:
         return "No message received", 400
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    return "pong"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server for a simple message queue')
