@@ -5,10 +5,19 @@ import hashlib
 import requests
 import logging
 
+PORT = os.environ.get('PORT', 8000)
+BROKER_PORT = os.environ.get('BROKER_PORT', 8890)
+BROKER_HOST = os.environ.get('BROKER_HOST', "http://system-analysis-design-project-queue")
+NUMBER_OF_BROKERS = os.environ.get('NUMBER_OF_BROKERS', 2)
+
 app = Flask(__name__)
 
 app.logger.setLevel(logging.INFO)
-list_nodes = [("http://system-analysis-design-project-queue-1", "8890"), ("http://system-analysis-design-project-queue-2", "8890")]#, ("localhost", "8892")] # should get from docker_env
+
+list_nodes = []
+for i in range(int(NUMBER_OF_BROKERS)):
+    list_nodes.append((BROKER_HOST + "-" + str(i+1), str(BROKER_PORT)))
+
 
 
 
@@ -52,4 +61,5 @@ if __name__ == "__main__":
     app.logger.warning("Warning; low disk space!")
     app.logger.error("Error!")
     app.logger.critical("Program halt!")
-    app.run(debug=True, port=8000, host="0.0.0.0", threaded=True)
+    app.logger.info(f"PORT is: {PORT}")
+    app.run(debug=True, port=PORT, host="0.0.0.0", threaded=True)

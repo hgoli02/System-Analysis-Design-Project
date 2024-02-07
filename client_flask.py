@@ -14,9 +14,9 @@ def pull(url):
 
 def subscribe_runner(url):
     while True:
-        response = requests.get(url + '/subscribe')
+        response = requests.get(url + '/pull')
         data = response.text
-        if data == "No messages":
+        if data == "no message":
             time.sleep(1)
         else:
             print(data)
