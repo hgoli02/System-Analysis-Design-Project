@@ -3,10 +3,6 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets: ['172.17.0.1:8000']
-  - job_name: 'Queue3'
-    scrape_interval: 30s
-    static_configs:
-      - targets: ['system-analysis-design-project-queue-3:8890']
 
   - job_name: 'Queue1'
     scrape_interval: 30s
@@ -18,3 +14,7 @@ scrape_configs:
     static_configs:
       - targets: ['system-analysis-design-project-queue-2:8890']
 
+  - job_name: 'Queue3'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['system-analysis-design-project-queue-3:8890']

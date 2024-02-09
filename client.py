@@ -18,15 +18,15 @@ class PyClient:
         print('Received from server: ' + response.text)
         return response.text
 
-    def subscribe_runner(self, url):
+    def subscribe_runner(self, url, f):
         while True:
             response = requests.get(url + '/pull')
             data = response.text
             if data == "no message":
                 time.sleep(1)
             else:
-                print('Subscribed message: ' + data)
+                f(data)
 
-    def subscribe(self):
-        thread = Thread(target=self.subscribe_runner, args=(self.server_url,))
+    def subscribe(self, f):
+        thread = Thread(target=self.subscribe_runner, args=(self.server_url, f))
         thread.start()

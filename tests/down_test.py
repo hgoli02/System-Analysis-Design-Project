@@ -3,9 +3,6 @@ import time
 import random
 
 client = Client()
-client2 = Client()
-
-client2.subscribe(print)
 
 print(client.push(f'key{random.randint}', 'value1'))
 print(client.push(f'key{random.randint}', 'value2'))
@@ -20,3 +17,18 @@ print(client.push(f'key{random.randint}', 'value10'))
 print(client.push(f'key{random.randint}', 'value11'))
 print(client.push(f'key{random.randint}', 'value12'))
 
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+
+input("enter something to continue")
+
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())

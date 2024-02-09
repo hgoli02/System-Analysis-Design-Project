@@ -1,4 +1,4 @@
-from client import PyClient as Client
+from .client import PyClient as Client
 
 client = Client()
 
