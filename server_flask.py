@@ -4,22 +4,25 @@ import argparse
 import logging
 from threading import Lock
 import pythonping
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 # queue_address = './DB/queue.txt'
-queue_address = './DB/'
+queue_address = "./DB/"
 
+metrics = PrometheusMetrics(app)
 app.logger.setLevel(logging.INFO)
 
 
-REPLICA_COUNT = int(os.environ.get('REPLICA_COUNT', 2))
+REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
+
 
 # A class for handling the queue through a file
 class Queue:
     def __init__(self, queue_address, reset=False):
         self.queue_address = queue_address
         if not os.path.exists(queue_address) or reset:
-            with open(queue_address, 'w') as f:
+            with open(queue_address, "w") as f:
                 pass
         self.length = 0
         self.datapointer = 0
@@ -30,8 +33,8 @@ class Queue:
 
     def push(self, message):
         with self.lock:
-            with open(self.queue_address, 'a') as f:
-                f.write(message + '\n')
+            with open(self.queue_address, "a") as f:
+                f.write(message + "\n")
                 self.length += 1
 
     def pop(self):
@@ -39,7 +42,7 @@ class Queue:
             if self.length <= 0:
                 return "No messages"
 
-            with open(self.queue_address, 'r') as f:
+            with open(self.queue_address, "r") as f:
                 f.seek(self.datapointer)
                 message = f.readline().strip()
                 self.datapointer += len(message) + 1
@@ -47,43 +50,55 @@ class Queue:
                 return message
 
 
-
-@app.route('/pull', methods=['GET'])
+@app.route("/pull", methods=["GET"])
 def get_message():
-    
-    queue_num = int(request.args['queue'])
-    position = int(request.args['position'])
+
+    queue_num = int(request.args["queue"])
+    position = int(request.args["position"])
     if not (queue_num, position) in queues:
         response = "$$"
     else:
-        response = "$$" if len(queues[(queue_num,position)]) <= 0 else queues[(queue_num,position)].pop()
+        response = (
+            "$$"
+            if len(queues[(queue_num, position)]) <= 0
+            else queues[(queue_num, position)].pop()
+        )
 
     app.logger.info(f"pull returning response: {response}")
     return response
 
-@app.route('/push', methods=['POST'])
+
+@app.route("/push", methods=["POST"])
 def push_message():
     data = request.get_json()
 
-    value = data.get('value', 'error')
-    queue_num = int(data.get('queue', 'error'))
-    position = int(data.get('position', 'error'))
-    if value != 'error':
+    value = data.get("value", "error")
+    queue_num = int(data.get("queue", "error"))
+    position = int(data.get("position", "error"))
+    if value != "error":
         if not (queue_num, position) in queues:
-            queues[(queue_num, position)] = Queue(queue_address + f"{queue_num}_{position}.txt")
+            queues[(queue_num, position)] = Queue(
+                queue_address + f"{queue_num}_{position}.txt"
+            )
         queues[(queue_num, position)].push(value)
         return "OK"
     else:
         return "No message received", 400
 
-@app.route('/ping', methods=['GET'])
+
+@app.route("/ping", methods=["GET"])
 def ping():
     return "pong"
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Server for a simple message queue')
-    parser.add_argument('--port', type=int, default=8891, help='Port number for the server')
-    parser.add_argument('--queue', type=str, default='queue.txt', help='Port number for the server')
+    parser = argparse.ArgumentParser(description="Server for a simple message queue")
+    parser.add_argument(
+        "--port", type=int, default=8891, help="Port number for the server"
+    )
+    parser.add_argument(
+        "--queue", type=str, default="queue.txt", help="Port number for the server"
+    )
 
     args = parser.parse_args()
     port = args.port
