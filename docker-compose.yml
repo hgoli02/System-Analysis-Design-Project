@@ -2,11 +2,8 @@ services:
   queue:
     image: kalhasti:latest
     command: python3 server_flask.py --port 8890 --queue db1
-    deploy:
-      mode: replicated
-      replicas: 3
     environment:
-      REPLICA_COUNT : 2
+      REPLICA_COUNT : 2  
   
 
   gateway:
@@ -19,7 +16,7 @@ services:
       PORT : 8000
       BROKER_PORT : 8890
       BROKER_HOST : "http://system-analysis-design-project-queue" 
-      NUMBER_OF_BROKERS : 3
+      NUMBER_OF_BROKERS : 2
       NUMBER_OF_COPIES : 5
       REPLICA_COUNT : 2
 
