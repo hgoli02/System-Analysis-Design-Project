@@ -22,5 +22,15 @@ services:
       NUMBER_OF_BROKERS : 3
       NUMBER_OF_COPIES : 5
       REPLICA_COUNT : 2
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --storage.tsdb.retention.time=7d
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     
     
