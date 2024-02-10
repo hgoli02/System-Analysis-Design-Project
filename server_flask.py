@@ -35,24 +35,26 @@ class Queue:
         return self.length
 
     def push(self, message):
-        with self.lock:
-            with open(self.queue_address, "a") as f:
-                f.write(message + "\n")
-                self.length += 1
-                message_counter.inc()
+        self.lock.acquire()
+        with open(self.queue_address, "a") as f:
+            f.write(message + "\n")
+            self.length += 1
+            message_counter.inc()
+        self.lock.release()
 
     def pop(self):
-        with self.lock:
-            if self.length <= 0:
-                return "No messages"
+        self.lock.acquire()
+        if self.length <= 0:
+            return "No messages"
 
-            with open(self.queue_address, "r") as f:
-                f.seek(self.datapointer)
-                message = f.readline().strip()
-                self.datapointer += len(message) + 1
-                self.length -= 1
-                message_counter.dec()
-                return message
+        with open(self.queue_address, "r") as f:
+            f.seek(self.datapointer)
+            message = f.readline().strip()
+            self.datapointer += len(message) + 1
+            self.length -= 1
+            message_counter.dec()
+            self.lock.release()
+            return message
 
 
 @app.route("/pull", methods=["GET"])
@@ -60,7 +62,7 @@ def get_message():
     queue_num = int(request.args["queue"])
     position = int(request.args["position"])
     if not (queue_num, position) in queues:
-        app.logger.info(f"{queue_num, position} not in queues")
+        app.logger.info(f"{queue_num, position} not in queus")
         response = "$$"
     else:
         app.logger.info(f"pointer={queues[(queue_num, position)].datapointer}")

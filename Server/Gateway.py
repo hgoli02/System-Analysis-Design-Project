@@ -117,7 +117,7 @@ def pull():
             data = {"queue": f"{j}", "position": ps}
             if alive_nodes[nxt]:
                 try:
-                    response = requests.get(url + "/pull", params=data, timeout=0.002)
+                    response = requests.get(url + "/pull", params=data)
                     if response == "$$":
                         break
                     ret = response.text
