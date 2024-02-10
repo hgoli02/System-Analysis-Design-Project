@@ -31,7 +31,7 @@ jobs:
           sleep 5 
           nohup python Server/Gateway.py &
           sleep 5
-          python test.py
+          python CI_test.py
           
         env:
           PORT: 8000
