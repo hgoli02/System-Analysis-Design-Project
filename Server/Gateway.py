@@ -67,12 +67,19 @@ def find_next(key, rep, do_hash=True):  # rep is in [0,REPLICA_COUNT)
     hash = key
     if do_hash:
         hash = int(sha256(hash), base=16)
+
+    #app.logger.info(f'key={key}, rep={rep}')
+    
     pos = bisect.bisect_left(hash_ring, [hash, -1])
     s = set()
+
+    app.logger.info(f'pos={pos}')
     for i in range(len(hash_ring)):
         ps = (pos + i) % len(hash_ring)
         s.add(hash_ring[ps][1])
+        #app.logger.info(f'len(s)={len(s)}, ps={ps}')
         if len(s) == rep + 1:
+            #app.logger.info(f'here')
             return hash_ring[ps][1], ps
 
 
@@ -114,7 +121,7 @@ def pull():
             data = {"queue": f"{j}", "position": ps}
             if alive_nodes[nxt]:
                 try:
-                    response = requests.get(url + "/pull", params=data, timeout=0.002)
+                    response = requests.get(url + "/pull", params=data)
                     if response == "$$":
                         break
                     ret = response.text
@@ -136,6 +143,7 @@ if __name__ == "__main__":
     app.logger.critical("Program halt!")
     app.logger.info(f"PORT is: {PORT}")
     construct_consistent_hashing_ring()
+    app.logger.info(hash_ring)
     for i in range(NUMBER_OF_BROKERS):
         t = threading.Thread(target=upadte_nodes, args=([i]))
         t.start()

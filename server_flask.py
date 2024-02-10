@@ -52,12 +52,12 @@ class Queue:
 
 @app.route("/pull", methods=["GET"])
 def get_message():
-
     queue_num = int(request.args["queue"])
     position = int(request.args["position"])
     if not (queue_num, position) in queues:
         response = "$$"
     else:
+        app.logger.info(f'pointer={queues[(queue_num, position)].datapointer}')
         response = (
             "$$"
             if len(queues[(queue_num, position)]) <= 0

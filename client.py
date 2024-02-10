@@ -4,18 +4,21 @@ from threading import Thread
 import argparse
 
 class PyClient:
-    def __init__(self, server_url='localhost', port=8000):
+    def __init__(self, server_url='localhost', port=8000, verbose=False):
         self.server_url = f'http://127.0.0.1:{port}' if server_url == 'localhost' else server_url
+        self.verbose = verbose
 
     def push(self, key, value):
         message = key+','+value
         response = requests.post(self.server_url + '/push', data=message)
-        print('Received from server: ' + response.text)
+        if self.verbose:
+            print('Received from server: ' + response.text)
         return response.text
 
     def pull(self):
         response = requests.get(self.server_url + '/pull')
-        print('Received from server: ' + response.text)
+        if self.verbose:
+            print('Received from server: ' + response.text)
         return response.text
 
     def subscribe_runner(self, url, f):
