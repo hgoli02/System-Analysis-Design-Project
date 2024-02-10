@@ -16,7 +16,7 @@ services:
       PORT : 8000
       BROKER_PORT : 8890
       BROKER_HOST : "http://system-analysis-design-project-queue" 
-      NUMBER_OF_BROKERS : 3
+      NUMBER_OF_BROKERS : 1
       NUMBER_OF_COPIES : 1
       REPLICA_COUNT : 1
 

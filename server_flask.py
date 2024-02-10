@@ -108,4 +108,4 @@ if __name__ == "__main__":
     queues = dict()
     # for i in range(REPLICA_COUNT):
     #     queues.append(Queue(queue_address + f"{i}.txt"))
-    app.run(debug=False, port=port, host="0.0.0.0")
+    app.run(debug=False, port=port, host="0.0.0.0", threaded=True)
