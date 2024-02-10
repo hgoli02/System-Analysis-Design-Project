@@ -13,11 +13,11 @@ from prometheus_flask_exporter import PrometheusMetrics
 PORT = int(os.environ.get("PORT", 8000))
 BROKER_PORT = int(os.environ.get("BROKER_PORT", 8890))
 BROKER_HOST = os.environ.get(
-    "BROKER_HOST", "http://system-analysis-design-project-queue"
+    "BROKER_HOST", "http://127.0.0.1"
 )
-NUMBER_OF_BROKERS = int(os.environ.get("NUMBER_OF_BROKERS", 2))
+NUMBER_OF_BROKERS = int(os.environ.get("NUMBER_OF_BROKERS", 1))
 NUMBER_OF_COPIES = int(os.environ.get("NUMBER_OF_COPIES", 5))
-REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
+REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 1))
 
 app = Flask(__name__)
 
@@ -26,8 +26,11 @@ metrics = PrometheusMetrics(app)
 
 list_nodes = []
 alive_nodes = [True] * int(NUMBER_OF_BROKERS)
-for i in range(int(NUMBER_OF_BROKERS)):
-    list_nodes.append((BROKER_HOST + "-" + str(i + 1), str(BROKER_PORT)))
+if BROKER_HOST == 'http://127.0.0.1':
+    list_nodes.append(('http://127.0.0.1', str(BROKER_PORT)))
+else:
+    for i in range(int(NUMBER_OF_BROKERS)):
+        list_nodes.append((BROKER_HOST + "-" + str(i + 1), str(BROKER_PORT)))
 
 hash_ring = []
 
@@ -67,19 +70,12 @@ def find_next(key, rep, do_hash=True):  # rep is in [0,REPLICA_COUNT)
     hash = key
     if do_hash:
         hash = int(sha256(hash), base=16)
-
-    #app.logger.info(f'key={key}, rep={rep}')
-    
     pos = bisect.bisect_left(hash_ring, [hash, -1])
     s = set()
-
-    app.logger.info(f'pos={pos}')
     for i in range(len(hash_ring)):
         ps = (pos + i) % len(hash_ring)
         s.add(hash_ring[ps][1])
-        #app.logger.info(f'len(s)={len(s)}, ps={ps}')
         if len(s) == rep + 1:
-            #app.logger.info(f'here')
             return hash_ring[ps][1], ps
 
 
@@ -121,7 +117,7 @@ def pull():
             data = {"queue": f"{j}", "position": ps}
             if alive_nodes[nxt]:
                 try:
-                    response = requests.get(url + "/pull", params=data)
+                    response = requests.get(url + "/pull", params=data, timeout=0.002)
                     if response == "$$":
                         break
                     ret = response.text
@@ -142,8 +138,8 @@ if __name__ == "__main__":
     app.logger.error("Error!")
     app.logger.critical("Program halt!")
     app.logger.info(f"PORT is: {PORT}")
+    app.logger.info(f"broker ports are : {BROKER_HOST}")
     construct_consistent_hashing_ring()
-    app.logger.info(hash_ring)
     for i in range(NUMBER_OF_BROKERS):
         t = threading.Thread(target=upadte_nodes, args=([i]))
         t.start()
