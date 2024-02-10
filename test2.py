@@ -3,8 +3,8 @@ import time
 import threading
 
 
-NUM = 20
-CLIENTS = 500
+NUM = 2
+CLIENTS = 50
 clients = []
 final_results = {}
 final_pushed = {}
