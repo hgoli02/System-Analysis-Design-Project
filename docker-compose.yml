@@ -17,17 +17,17 @@ services:
       BROKER_PORT : 8890
       BROKER_HOST : "http://system-analysis-design-project-queue" 
       NUMBER_OF_BROKERS : 3
-      NUMBER_OF_COPIES : 1
+      NUMBER_OF_COPIES : 5
       REPLICA_COUNT : 1
 
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   command:
-  #     - --storage.tsdb.retention.time=7d
-  #     - --config.file=/etc/prometheus/prometheus.yml
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --storage.tsdb.retention.time=7d
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     
     

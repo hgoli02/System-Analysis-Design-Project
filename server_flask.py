@@ -5,6 +5,7 @@ import logging
 from threading import Lock
 import pythonping
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Gauge
 
 app = Flask(__name__)
 # queue_address = './DB/queue.txt'
@@ -12,6 +13,8 @@ queue_address = "./DB/"
 
 metrics = PrometheusMetrics(app)
 app.logger.setLevel(logging.INFO)
+
+message_counter = Gauge("message_counter", "Number of messages in the queue")
 
 
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
@@ -36,6 +39,7 @@ class Queue:
             with open(self.queue_address, "a") as f:
                 f.write(message + "\n")
                 self.length += 1
+                message_counter.inc()
 
     def pop(self):
         with self.lock:
@@ -47,6 +51,7 @@ class Queue:
                 message = f.readline().strip()
                 self.datapointer += len(message) + 1
                 self.length -= 1
+                message_counter.dec()
                 return message
 
 
@@ -57,7 +62,7 @@ def get_message():
     if not (queue_num, position) in queues:
         response = "$$"
     else:
-        app.logger.info(f'pointer={queues[(queue_num, position)].datapointer}')
+        app.logger.info(f"pointer={queues[(queue_num, position)].datapointer}")
         response = (
             "$$"
             if len(queues[(queue_num, position)]) <= 0
