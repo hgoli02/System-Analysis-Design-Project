@@ -1,34 +1,26 @@
 from client import PyClient as Client
+import time
 
-clients = []
+client = Client()
+C = 1000
+for i in range(C):
+    client.push(f'{i}', f'{i}')
+    #time.sleep(0.1)
 
-#create 5 clients
+results = []
+for i in range(C):
+    temp = client.pull()
+    #time.sleep(0.1)
+    if temp == 'no message':
+        results.append(-1)
+    else:
+        results.append(int(temp))
 
-for i in range(5):
-    clients.append(Client())
+print(sorted(results))
 
-#create a sorted benchmark for each client
-true_vlaues = {}
-for i in range(5):
-    true_vlaues[f'key{i}'] = [f'value{j}' for j in range(5)]
+for i in range(C):
+    assert i in results
 
-#push 5 messages to each client
-for i in range(5):
-    for j, client in enumerate(clients):
-        print(client.push(f'key{j}', f'value{i}'))
+print('Test passed')
 
 
-preds = {}
-#pull 5 messages from each client
-for i in range(5):
-    for j, client in enumerate(clients):
-        pred = client.pull()
-        preds[f'key{j}'] = preds.get(f'key{j}', []) + [pred]
-
-print(preds)
-
-#test
-for key in true_vlaues:
-    assert true_vlaues[key] == preds[key]
-
-print("All tests passed!")
