@@ -1,0 +1,4 @@
+flask
+requests
+pythonping
+prometheus_flask_exporter

@@ -1,0 +1,42 @@
+name: Test
+
+on: 
+  push:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: test
+    container: python:3.8
+
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Setup and run server in background
+        run: |
+          nohup python server_flask.py --port 8890 --queue db1 &   
+          sleep 5 
+          nohup python Server/Gateway.py &
+          sleep 5
+          python CI_test.py
+          
+        env:
+          PORT: 8000
+          BROKER_PORT: 8890
+          BROKER_HOST: "http://127.0.0.1" 
+          NUMBER_OF_BROKERS: 1
+          NUMBER_OF_COPIES: 5
+          REPLICA_COUNT: 1
