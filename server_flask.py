@@ -99,7 +99,7 @@ def ping():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server for a simple message queue")
     parser.add_argument(
-        "--port", type=int, default=8891, help="Port number for the server"
+        "--port", type=int, default=8890, help="Port number for the server"
     )
     parser.add_argument(
         "--queue", type=str, default="queue.txt", help="Port number for the server"

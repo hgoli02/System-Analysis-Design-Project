@@ -16,7 +16,7 @@ BROKER_HOST = os.environ.get(
     "BROKER_HOST", "http://127.0.0.1"
 )
 NUMBER_OF_BROKERS = int(os.environ.get("NUMBER_OF_BROKERS", 1))
-NUMBER_OF_COPIES = int(os.environ.get("NUMBER_OF_COPIES", 5))
+NUMBER_OF_COPIES = int(os.environ.get("NUMBER_OF_COPIES", 1))
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 1))
 
 app = Flask(__name__)

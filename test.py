@@ -2,15 +2,15 @@ from client import PyClient as Client
 import time
 
 client = Client()
-C = 1000
+C = 50
 for i in range(C):
     client.push(f'{i}', f'{i}')
-    #time.sleep(0.1)
+    time.sleep(0.01)
 
 results = []
 for i in range(C):
     temp = client.pull()
-    #time.sleep(0.1)
+    time.sleep(0.01)
     if temp == 'no message':
         results.append(-1)
     else:
