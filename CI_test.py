@@ -1,19 +1,26 @@
 from client import PyClient as Client
+import time
 
 client = Client()
-
-for i in range(10):
+C = 10
+for i in range(C):
     client.push(f'{i}', f'{i}')
 
+time.sleep(1)
+
 results = []
-for i in range(10):
+for i in range(C):
     temp = client.pull()
-    results.append(temp)
+    if temp == 'no message':
+        results.append(-1)
+    else:
+        results.append(int(temp))
 
 print(sorted(results))
 
-for i in range(10):
-    assert f'{i}' in results
+for i in range(C):
+    assert i in results
 
 print('Test passed')
+
 
