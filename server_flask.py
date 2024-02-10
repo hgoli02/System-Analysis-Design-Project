@@ -60,6 +60,7 @@ def get_message():
     queue_num = int(request.args["queue"])
     position = int(request.args["position"])
     if not (queue_num, position) in queues:
+        app.logger.info(f"{queue_num, position} not in queues")
         response = "$$"
     else:
         app.logger.info(f"pointer={queues[(queue_num, position)].datapointer}")
@@ -113,4 +114,4 @@ if __name__ == "__main__":
     queues = dict()
     # for i in range(REPLICA_COUNT):
     #     queues.append(Queue(queue_address + f"{i}.txt"))
-    app.run(debug=False, port=port, host="0.0.0.0", threaded=True)
+    app.run(debug=False, port=port, host="0.0.0.0", threaded=False)
