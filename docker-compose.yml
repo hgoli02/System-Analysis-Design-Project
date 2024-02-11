@@ -1,7 +1,9 @@
 version: "3"
+env:
+  IMAGE='kalhasti'
 services:
   queue:
-    image: $MEOW$IMAGE:latest
+    image: $MEOW{{env.$IMAGE}}:latest
     command: python3 server_flask.py --port 8890 --queue db1
     environment:
       REPLICA_COUNT : 1
@@ -9,7 +11,7 @@ services:
 
   gateway:
     container_name: gateway
-    image: $MEOW$IMAGE:latest
+    image: $MEOW{{env.$IMAGE}}:latest
     ports:
       - 8000:8000
     command: python3 Server/Gateway.py
@@ -23,7 +25,7 @@ services:
 
   gateway_backup:
     container_name: gateway_backup
-    image: $MEOW$IMAGE:latest
+    image: $MEOW{{env.$IMAGE}}:latest
     ports:
       - 8001:8001
     command: python3 Server/Gateway.py
