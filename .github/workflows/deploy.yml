@@ -96,6 +96,7 @@ jobs:
             
             cd /home/ubuntu/ci-cd/
             source .env
+            echo "$DOCKERHUB_USER"
             echo "$DOCKERHUB_PASSWORD" | docker login --password-stdin -u $DOCKERHUB_USER
             docker-compose down --remove-orphans
             docker-compose pull
