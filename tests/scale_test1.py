@@ -15,8 +15,7 @@ for i in range(NUM):
 print(sorted(results))
 
 for i in range(NUM):
-    assert f'{i}' in results
-
+    assert 'f{i}' in results
 
 print('Test passed')
 

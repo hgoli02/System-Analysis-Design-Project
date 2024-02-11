@@ -1,5 +1,8 @@
 name: CD
 
+env:
+  MEOW: 'kian2003bhd/'
+
 on:
   push:
     branches:
@@ -54,8 +57,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
           script: |
-            sudo rm -f /home/ubuntu/ci-cd/docker-compose.yml
-            sudo rm -f /home/ubuntu/ci-cd/.env
+            sudo rm -f /home/ubuntu/System-Analysis-Design-Project/docker-compose.yml
+            sudo rm -f /home/ubuntu/System-Analysis-Design-Project/.env
       - name: Copy docker-compose via ssh
         uses: appleboy/scp-action@master
         with:
@@ -64,13 +67,22 @@ jobs:
           key: ${{ secrets.RAZ }}
           port: ${{ secrets.SSH_PORT }}
           source: "docker-compose.yml"
-          target: "/home/ubuntu/ci-cd"
-
+          target: "/home/ubuntu/System-Analysis-Design-Project"
+      - name: Copy prometheus.yml via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.RAZ }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "prometheus.yml"
+          target: "/home/ubuntu/System-Analysis-Design-Project"
       - name: Create .env file
         run: |
           echo "IMAGE=${{ vars.IMAGE }}" >> .env
           echo "DOCKERHUB_USER=${{secrets.DOCKERHUB_USER}}" >> .env
           echo "DOCKERHUB_PASSWORD=${{secrets.DOCKERHUB_PASSWORD}}" >> .env
+          echo "MEOW=${{env.MEOW}}" >> .env
       - name: Copy .env via ssh
         uses: appleboy/scp-action@master
         with:
@@ -79,7 +91,7 @@ jobs:
           key: ${{ secrets.RAZ }}
           port: ${{ secrets.SSH_PORT }}
           source: ".env"
-          target: "/home/ubuntu/ci-cd"
+          target: "/home/ubuntu/System-Analysis-Design-Project"
       - name: Run docker compose up
         uses: appleboy/ssh-action@master
         env:
@@ -94,14 +106,11 @@ jobs:
           envs: DOCKERHUB_PASSWORD,DOCKERHUB_USER
           script: |
             
-            cd /home/ubuntu/ci-cd/
+            cd /home/ubuntu/System-Analysis-Design-Project/
             source .env
             echo "$DOCKERHUB_USER"
-            echo "$DOCKERHUB_PASSWORD" | docker login --password-stdin -u $DOCKERHUB_USER
-            docker-compose down --remove-orphans
-            docker-compose pull
-            docker-compose up -d --force-recreate
+            echo "$DOCKERHUB_PASSWORD" | sudo docker login --password-stdin -u $DOCKERHUB_USER
+            sudo docker compose down --remove-orphans
+            sudo docker compose up -d --force-recreate
+            echo 'Deployment successful!'
             exit
-      - name: Deploy Application
-        run: |
-          ssh -i $HOME/.ssh/id_rsa ${{secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}} "echo 'Deployment successful!'"

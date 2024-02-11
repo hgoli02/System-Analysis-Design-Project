@@ -2,7 +2,7 @@ from client import PyClient as Client
 
 client = Client()
 
-NUM = 501
+NUM = 1000
 
 for i in range(NUM):
     client.push(f'{i}', f'{i}')
@@ -15,8 +15,7 @@ for i in range(NUM):
 print(sorted(results))
 
 for i in range(NUM):
-    assert f'{i}' in results
-
+    assert 'f{i}' in results
 
 print('Test passed')
 
