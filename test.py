@@ -1,72 +1,34 @@
 from client import PyClient as Client
 import time
-import threading
+import random
 
+client = Client()
 
-NUM = 5
-CLIENTS = 2
-clients = []
-final_results = {}
-final_pushed = {}
+print(client.push(f'{random.randint(0, 1000)}', 'value1'))
+print(client.push(f'{random.randint(0, 1000)}', 'value2'))
+print(client.push(f'{random.randint(0, 1000)}', 'value3'))
+print(client.push(f'{random.randint(0, 1000)}', 'value4'))
+print(client.push(f'{random.randint(0, 1000)}', 'value5'))
+print(client.push(f'{random.randint(0, 1000)}', 'value6'))
+print(client.push(f'{random.randint(0, 1000)}', 'value7'))
+print(client.push(f'{random.randint(0, 1000)}', 'value8'))
+print(client.push(f'{random.randint(0, 1000)}', 'value9'))
+print(client.push(f'{random.randint(0, 1000)}', 'value10'))
+print(client.push(f'{random.randint(0, 1000)}', 'value11'))
+print(client.push(f'{random.randint(0, 1000)}', 'value12'))
 
-for i in range(CLIENTS):
-    clients.append(Client())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
 
-def push_runner(client, id):
-    pushed = []
-    for i in range(NUM):
-        client.push(f"c{id}", f"v{i}+{id}")
-        pushed.append(f"v{i}+{id}")
-    final_pushed[id] = pushed
-    
-def pull_runner(client, id):
-    results = []
-    for i in range(NUM):
-        temp = client.pull()
-        results.append(temp)
+input("enter something to continue")
 
-    final_results[id] = results
-
-    
-
-start_time = time.time()
-threads_push = []
-threads_pull = []
-for i in range(CLIENTS):
-    threads_push.append(threading.Thread(target=push_runner, args=(clients[i], i)))
-    threads_pull.append(threading.Thread(target=pull_runner, args=(clients[i], i)))
-
-for i in range(CLIENTS):
-    threads_push[i].start()
-
-for i in range(CLIENTS):
-    threads_push[i].join()
-
-for i in range(CLIENTS):
-    threads_pull[i].start()
-
-for i in range(CLIENTS):
-    threads_pull[i].join()
-
-end_time = time.time()
-
-print(f"Time taken: {end_time - start_time}")
-final = []
-target = []
-for i in range(CLIENTS):
-    final += final_results[i]
-    target += final_pushed[i]
-
-print(len(final))
-print(len(target))
-print(sorted(final)[:100])
-print(sorted(target)[:100])
-print(sorted(final) == sorted(target))
-
-#how many out of all targets are similar
-for i in range(len(target)):
-    if target[i] not in final:
-        print(f"Not found {target[i]}")
-        
-
-
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
+print(client.pull())
