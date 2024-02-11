@@ -1,29 +1,13 @@
-from .client import PyClient as Client
+from client import PyClient as Client
 
 client = Client()
 
-print(client.push('key1', 'value11'))
-print(client.push('key1', 'value12'))
-print(client.push('key1', 'value13'))
-print(client.push('key1', 'value14'))
-print(client.push('key1', 'value15'))
-print(client.push('key1', 'value16'))
-print(client.push('key2', 'value21'))
-print(client.push('key2', 'value22'))
-print(client.push('key2', 'value23'))
-print(client.push('key2', 'value24'))
-print(client.push('key2', 'value25'))
-print(client.push('key2', 'value26'))
+NUM = 100
+for i in range(NUM):
+    client.push("key2",f"value{i}")
 
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
-print(client.pull())
+for i in range(NUM):
+    a = client.pull()
+    assert a == f"value{i}"
+
+print("Test Passed")
