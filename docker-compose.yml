@@ -1,25 +1,24 @@
 version: "3"
 services:
   queue:
-    image: kian2003bhd/kalhasti:latest
+    image: kalhasti:latest
     command: python3 server_flask.py --port 8890 --queue db1
     environment:
-      REPLICA_COUNT : 2
-  
+      REPLICA_COUNT: 2
 
   gateway:
     container_name: gateway
-    image: kian2003bhd/kalhasti:latest
+    image: kalhasti:latest
     ports:
       - 8000:8000
     command: python3 Server/Gateway.py
     environment:
-      PORT : 8000
-      BROKER_PORT : 8890
-      BROKER_HOST : "http://system-analysis-design-project-queue" 
-      NUMBER_OF_BROKERS : 4
-      NUMBER_OF_COPIES : 5
-      REPLICA_COUNT : 2
+      PORT: 8000
+      BROKER_PORT: 8890
+      BROKER_HOST: "http://system-analysis-design-project-queue"
+      NUMBER_OF_BROKERS: 2
+      NUMBER_OF_COPIES: 5
+      REPLICA_COUNT: 2
 
   prometheus:
     image: prom/prometheus:latest
@@ -31,9 +30,18 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   ports:
-  #     - "3000:3000"
-    
-  
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - "9100:9100"

@@ -9,12 +9,11 @@ from pythonping import ping
 import threading
 import time
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Gauge
 
 PORT = int(os.environ.get("PORT", 8000))
 BROKER_PORT = int(os.environ.get("BROKER_PORT", 8890))
-BROKER_HOST = os.environ.get(
-    "BROKER_HOST", "http://127.0.0.1"
-)
+BROKER_HOST = os.environ.get("BROKER_HOST", "http://127.0.0.1")
 NUMBER_OF_BROKERS = int(os.environ.get("NUMBER_OF_BROKERS", 1))
 NUMBER_OF_COPIES = int(os.environ.get("NUMBER_OF_COPIES", 1))
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 1))
@@ -24,10 +23,13 @@ app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 metrics = PrometheusMetrics(app)
 
+total_messages = Gauge("total_messages", "Total number of messages in the system")
+total_messages.set(0)
+
 list_nodes = []
 alive_nodes = [True] * int(NUMBER_OF_BROKERS)
-if BROKER_HOST == 'http://127.0.0.1':
-    list_nodes.append(('http://127.0.0.1', str(BROKER_PORT)))
+if BROKER_HOST == "http://127.0.0.1":
+    list_nodes.append(("http://127.0.0.1", str(BROKER_PORT)))
 else:
     for i in range(int(NUMBER_OF_BROKERS)):
         list_nodes.append((BROKER_HOST + "-" + str(i + 1), str(BROKER_PORT)))
@@ -88,7 +90,7 @@ def push():
         app.logger.info(msg)
         return msg
     key, value = data.split(",")
-
+    total_messages.inc()
     for i in range(REPLICA_COUNT):
         node, ps = find_next(key, i)
         data = {"value": value, "queue": i, "position": ps}
@@ -128,6 +130,7 @@ def pull():
                     )
 
         if ret != "$$":
+            total_messages.dec()
             return ret
     return "no message"
 
