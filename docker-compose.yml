@@ -1,7 +1,7 @@
 version: "3"
 services:
   queue:
-    image: kalhasti:latest
+    image: kian2003bhd/kalhasti:latest
     command: python3 server_flask.py --port 8890 --queue db1
     environment:
       REPLICA_COUNT : 1
@@ -9,7 +9,7 @@ services:
 
   gateway:
     container_name: gateway
-    image: kalhasti:latest
+    image: kian2003bhd/kalhasti:latest
     ports:
       - 8000:8000
     command: python3 Server/Gateway.py
@@ -23,7 +23,7 @@ services:
 
   gateway_backup:
     container_name: gateway_backup
-    image: kalhasti:latest
+    image: kian2003bhd/kalhasti:latest
     ports:
       - 8001:8001
     command: python3 Server/Gateway.py
