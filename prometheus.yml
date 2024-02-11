@@ -23,3 +23,9 @@ scrape_configs:
   #   scrape_interval: 30s
   #   static_configs:
   #     - targets: ['system-analysis-design-project-queue-3:8890']
+
+remote_write:
+  - url: 'https://prometheus-prod-13-prod-us-east-0.grafana.net/api/prom/push'
+    basic_auth:
+      username: '1419145'
+      password: 'glc_eyJvIjoiMTA1MDk1OCIsIm4iOiJob2dvODg5OS10b2siLCJrIjoidE1kZjk3WjROME84YzB1QTVtNFZQWDMxIiwibSI6eyJyIjoicHJvZC11cy1lYXN0LTAifX0='

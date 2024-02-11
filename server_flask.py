@@ -44,6 +44,7 @@ class Queue:
         self.lock.acquire()
         global req_per_minute
         with open(self.queue_address, "a") as f:
+            app.logger.info(f"self.queue_address[8] = {self.queue_address[8]}")
             if self.queue_address[8] == "0":
                 message_counter.inc()
 
@@ -65,6 +66,8 @@ class Queue:
             self.datapointer += len(message) + 1
             self.length -= 1
             req_per_minute += 1
+            if self.queue_address[8] == "0":
+                message_counter.dec()
             self.lock.release()
             return message
 
@@ -80,8 +83,6 @@ def get_message():
         app.logger.info(f"{queue_num, position} not in queus")
         response = "$$"
     else:
-        if queue_num == 0:
-            message_counter.dec()
 
         app.logger.info(f"pointer={queues[(queue_num, position)].datapointer}")
         response = (
