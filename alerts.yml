@@ -9,7 +9,7 @@ groups:
       annotations:
         summary: High message rate.
 
-  - name: High Disk Usage
+  - name: High Memory Usage
     rules:
     - alert: HostOutOfMemory
       expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 99
@@ -19,3 +19,15 @@ groups:
       annotations:
         summary: Host out of memory (instance {{ $labels.instance }})
         description: Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}
+
+
+  - name: HighDiskUsage
+  rules:
+  - alert: HostOutOfDisk
+    expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Host out of disk space (instance {{ $labels.instance }})
+      description: Disk space is filling up (< 10% available)\n  VALUE = {{ $value }}
