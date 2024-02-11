@@ -86,7 +86,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.RAZ }}
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
           envs: DOCKERHUB_PASSWORD,DOCKERHUB_USER
