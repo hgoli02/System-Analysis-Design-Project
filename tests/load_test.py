@@ -13,7 +13,7 @@ for i in range(100):
 print(sorted(results))
 
 for i in range(100):
-    assert 'f{i}' in results
+    assert f'{i}' in results
 
 print('Test passed')
 
