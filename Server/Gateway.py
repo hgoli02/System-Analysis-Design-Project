@@ -9,12 +9,12 @@ from pythonping import ping
 import threading
 import time
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Gauge
+import psutil
 
 PORT = int(os.environ.get("PORT", 8000))
 BROKER_PORT = int(os.environ.get("BROKER_PORT", 8890))
-BROKER_HOST = os.environ.get(
-    "BROKER_HOST", "http://127.0.0.1"
-)
+BROKER_HOST = os.environ.get("BROKER_HOST", "http://127.0.0.1")
 NUMBER_OF_BROKERS = int(os.environ.get("NUMBER_OF_BROKERS", 1))
 NUMBER_OF_COPIES = int(os.environ.get("NUMBER_OF_COPIES", 1))
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 1))
@@ -24,10 +24,13 @@ app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 metrics = PrometheusMetrics(app)
 
+total_messages = Gauge("total_messages", "Number of messages in the queue")
+disk_used = Gauge("disk_used", "Disk used in MB")
+
 list_nodes = []
 alive_nodes = [True] * int(NUMBER_OF_BROKERS)
-if BROKER_HOST == 'http://127.0.0.1':
-    list_nodes.append(('http://127.0.0.1', str(BROKER_PORT)))
+if BROKER_HOST == "http://127.0.0.1":
+    list_nodes.append(("http://127.0.0.1", str(BROKER_PORT)))
 else:
     for i in range(int(NUMBER_OF_BROKERS)):
         list_nodes.append((BROKER_HOST + "-" + str(i + 1), str(BROKER_PORT)))
@@ -52,6 +55,14 @@ def upadte_nodes(i):
     while True:
         alive_nodes[i] = is_alive(list_nodes[i][0] + ":" + list_nodes[i][1])
         app.logger.info(f"node {i} aliveness: {alive_nodes[i]}")
+        time.sleep(10)
+
+
+def disk_usage_stats():
+    while True:
+        disk = psutil.disk_usage("/")
+        used = disk.used / (1024.0**2)
+        disk_used.set(used)
         time.sleep(10)
 
 
@@ -95,6 +106,9 @@ def push():
         if alive_nodes[node]:
             try:
                 response = requests.post(url, json=data)
+                if response.status_code == 200:
+                    total_messages.inc()
+
             except Exception as e:
                 app.logger.info(
                     f"tried to push to f{url} with data=f{data} but caught error {e}"
@@ -127,6 +141,7 @@ def pull():
                     )
 
         if ret != "$$":
+            total_messages.dec()
             return ret
     return "no message"
 
@@ -140,6 +155,7 @@ if __name__ == "__main__":
     app.logger.info(f"PORT is: {PORT}")
     app.logger.info(f"broker ports are : {BROKER_HOST}")
     construct_consistent_hashing_ring()
+    threading.Thread(target=disk_usage_stats).start()
     for i in range(NUMBER_OF_BROKERS):
         t = threading.Thread(target=upadte_nodes, args=([i]))
         t.start()
