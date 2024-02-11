@@ -91,6 +91,7 @@ jobs:
           command_timeout: 5m
           envs: DOCKERHUB_PASSWORD,DOCKERHUB_USER
           script: |
+            echo "MEOW"
             cd /home/ubuntu/ci-cd/
             echo "$DOCKERHUB_PASSWORD" | docker login --password-stdin -u $DOCKERHUB_USER
             docker-compose down --remove-orphans
