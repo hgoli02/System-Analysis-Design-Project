@@ -3,7 +3,7 @@ services:
     image: kalhasti:latest
     command: python3 server_flask.py --port 8890 --queue db1
     environment:
-      REPLICA_COUNT : 1
+      REPLICA_COUNT : 2
   
 
   gateway:
@@ -16,9 +16,9 @@ services:
       PORT : 8000
       BROKER_PORT : 8890
       BROKER_HOST : "http://system-analysis-design-project-queue" 
-      NUMBER_OF_BROKERS : 1
-      NUMBER_OF_COPIES : 1
-      REPLICA_COUNT : 1
+      NUMBER_OF_BROKERS : 2
+      NUMBER_OF_COPIES : 5
+      REPLICA_COUNT : 2
 
   prometheus:
     image: prom/prometheus:latest
