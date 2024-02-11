@@ -67,6 +67,7 @@ print(sorted(final) == sorted(target))
 for i in range(len(target)):
     if target[i] not in final:
         print(f"Not found {target[i]}")
+        assert False
         
 
 
