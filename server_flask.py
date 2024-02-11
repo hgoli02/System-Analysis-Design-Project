@@ -139,4 +139,5 @@ if __name__ == "__main__":
     # for i in range(REPLICA_COUNT):
     #     queues.append(Queue(queue_address + f"{i}.txt"))
     limiter = Thread(target=limiter, args=())
+    limiter.start()
     app.run(debug=False, port=port, host="0.0.0.0", threaded=False)

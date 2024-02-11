@@ -1,23 +1,33 @@
 from client import PyClient as Client
+import time
+import random
 
 client = Client()
 
-NUM = 501
-
+NUM = 100
+c = []
 for i in range(NUM):
-    client.push(f'{i}', f'{i}')
+    r = random.randint(0, 1000)
+    print(f"pushed ({r}, value{i + 1})")
+    client.push(f'{r}', f'value{i + 1}')
+    time.sleep(0.01)
+    c.append(f'value{i + 1}')
 
-results = []
-for i in range(NUM):
-    temp = client.pull()
-    results.append(temp)
+l = []
+for i in range(NUM // 2):
+    a = client.pull()
+    time.sleep(0.01)
+    print(a)
+    l.append(a)
 
-print(sorted(results))
+input("enter something to continue")
 
-for i in range(NUM):
-    assert f'{i}' in results
+for i in range(NUM // 2):
+    a = client.pull()
+    time.sleep(0.01)
+    print(a)
+    l.append(a)
 
+assert sorted(l) == sorted(c)
 
-print('Test passed')
-
-
+print("Test Passed")
