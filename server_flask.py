@@ -3,9 +3,11 @@ import os
 import argparse
 import logging
 from threading import Lock
+from threading import Thread
 import pythonping
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Gauge
+import time
 
 app = Flask(__name__)
 # queue_address = './DB/queue.txt'
@@ -19,6 +21,8 @@ message_counter = Gauge("message_counter", "Number of messages in the queue")
 
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
 
+req_per_minute = 0
+THRESHOLD = 700
 
 # A class for handling the queue through a file
 class Queue:
@@ -36,14 +40,17 @@ class Queue:
 
     def push(self, message):
         self.lock.acquire()
+        global req_per_minute
         with open(self.queue_address, "a") as f:
             f.write(message + "\n")
             self.length += 1
+            req_per_minute += 1
             message_counter.inc()
         self.lock.release()
 
     def pop(self):
         self.lock.acquire()
+        global req_per_minute
         if self.length <= 0:
             self.lock.release()
             return "$$"
@@ -54,12 +61,16 @@ class Queue:
             self.datapointer += len(message) + 1
             self.length -= 1
             message_counter.dec()
+            req_per_minute += 1
             self.lock.release()
             return message
 
 
 @app.route("/pull", methods=["GET"])
 def get_message():
+    global req_per_minute
+    if req_per_minute > THRESHOLD:
+        return "The Server Overloaded", 529
     queue_num = int(request.args["queue"])
     position = int(request.args["position"])
     if not (queue_num, position) in queues:
@@ -79,6 +90,9 @@ def get_message():
 
 @app.route("/push", methods=["POST"])
 def push_message():
+    global req_per_minute
+    if req_per_minute > THRESHOLD:
+        return "The Server is Overloaded", 529
     data = request.get_json()
 
     value = data.get("value", "error")
@@ -99,6 +113,13 @@ def push_message():
 def ping():
     return "pong"
 
+def limiter(host):
+    global req_per_minute
+    while True:
+        req_per_minute = 0
+        time.sleep(10)            
+        
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Server for a simple message queue")
@@ -117,4 +138,5 @@ if __name__ == "__main__":
     queues = dict()
     # for i in range(REPLICA_COUNT):
     #     queues.append(Queue(queue_address + f"{i}.txt"))
+    limiter = Thread(target=limiter, args=())
     app.run(debug=False, port=port, host="0.0.0.0", threaded=False)

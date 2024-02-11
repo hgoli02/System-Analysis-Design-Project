@@ -5,9 +5,12 @@ client = Client()
 
 messages = []
 
-#pull until empty
 while True:
     temp = client.pull()
-    if temp == None:
+    if temp == "$$":
         break
     messages.append(temp)
+
+for m in messages:
+    client.push(m, m)
+
