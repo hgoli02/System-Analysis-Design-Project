@@ -62,6 +62,8 @@ def construct_consistent_hashing_ring():
             current_hash = int(sha256(str(i) + ";" + str(j)), base=16)
             hash_ring.append([current_hash, i])
     hash_ring.sort()
+    for i in range(len(hash_ring)):
+        hash_ring[i][-1] = i % NUMBER_OF_BROKERS
 
 
 def find_next(key, rep, do_hash=True):  # rep is in [0,REPLICA_COUNT)
@@ -76,6 +78,8 @@ def find_next(key, rep, do_hash=True):  # rep is in [0,REPLICA_COUNT)
         ps = (pos + i) % len(hash_ring)
         s.add(hash_ring[ps][1])
         if len(s) == rep + 1:
+            # while hash_ring[ps][1] == hash_ring[(ps + 1) % len(hash_ring)][1]:
+            #     ps += 1
             return hash_ring[ps][1], ps
 
 
@@ -94,6 +98,7 @@ def push():
         data = {"value": value, "queue": i, "position": ps}
         url = list_nodes[node][0] + ":" + list_nodes[node][1] + "/push"
         if alive_nodes[node]:
+            app.logger.info(f"replica {i} goes to {node}, {ps}")
             try:
                 response = requests.post(url, json=data)
             except Exception as e:
@@ -115,8 +120,10 @@ def pull():
         for j in range(REPLICA_COUNT):
             nxt, ps = find_next(hash_ring[nw][0], j, False)
             url = list_nodes[nxt][0] + ":" + list_nodes[nxt][1]
+            
             data = {"queue": f"{j}", "position": ps}
             if alive_nodes[nxt]:
+                app.logger.info(f"replica {j} gets from {nxt}, {ps}")
                 try:
                     response = requests.get(url + "/pull", params=data)
                     if response == "$$":
@@ -144,5 +151,5 @@ if __name__ == "__main__":
     for i in range(NUMBER_OF_BROKERS):
         t = threading.Thread(target=upadte_nodes, args=([i]))
         t.start()
-    # app.logger.info("hash_ring is: " + str(hash_ring))
+    app.logger.info("hash_ring is: " + str(hash_ring))
     app.run(debug=False, port=PORT, host="0.0.0.0", threaded=True)
