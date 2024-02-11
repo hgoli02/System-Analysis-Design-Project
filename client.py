@@ -31,7 +31,7 @@ class PyClient:
 
     def subscribe_runner(self, url, f):
         while True:
-            response = requests.get(url + '/pull')
+            response = requests.get(self.get_url() + '/pull')
             data = response.text
             if data == "no message":
                 time.sleep(1)
