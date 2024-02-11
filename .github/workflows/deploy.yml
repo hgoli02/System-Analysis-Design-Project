@@ -1,5 +1,8 @@
 name: CD
 
+env:
+  MEOW: 'kian2003bhd/'
+
 on:
   push:
     branches:
@@ -79,6 +82,7 @@ jobs:
           echo "IMAGE=${{ vars.IMAGE }}" >> .env
           echo "DOCKERHUB_USER=${{secrets.DOCKERHUB_USER}}" >> .env
           echo "DOCKERHUB_PASSWORD=${{secrets.DOCKERHUB_PASSWORD}}" >> .env
+          echo "MEOW=${{env.MEOW}}" >> .env
       - name: Copy .env via ssh
         uses: appleboy/scp-action@master
         with:

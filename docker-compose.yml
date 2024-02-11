@@ -1,4 +1,5 @@
 version: "3"
+
 services:
   queue:
     image: kalhasti:latest
@@ -34,6 +35,7 @@ services:
       NUMBER_OF_BROKERS : 1
       NUMBER_OF_COPIES : 1
       REPLICA_COUNT : 1
+      IMAGE: 'kalhasti'
 
   prometheus:
     image: prom/prometheus:latest
@@ -44,5 +46,4 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    
     
