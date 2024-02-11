@@ -83,6 +83,7 @@ def find_next(key, rep, do_hash=True):  # rep is in [0,REPLICA_COUNT)
 def push():
     data = request.data.decode("utf-8")
     if len(data.split(",")) != 2:
+        app.logger.info(data)
         msg = "ERROR: there should be exactly one comma (,) in the data between key and value"
         app.logger.info(msg)
         return msg
