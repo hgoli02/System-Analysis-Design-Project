@@ -45,7 +45,8 @@ class Queue:
     def pop(self):
         self.lock.acquire()
         if self.length <= 0:
-            return "No messages"
+            self.lock.release()
+            return "$$"
 
         with open(self.queue_address, "r") as f:
             f.seek(self.datapointer)
