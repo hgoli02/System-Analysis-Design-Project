@@ -17,12 +17,14 @@ metrics = PrometheusMetrics(app)
 app.logger.setLevel(logging.INFO)
 
 message_counter = Gauge("message_counter", "Number of messages in the queue")
+message_counter.set(0)
 
 
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
 
 req_per_minute = 0
 THRESHOLD = 700
+
 
 # A class for handling the queue through a file
 class Queue:
@@ -42,10 +44,12 @@ class Queue:
         self.lock.acquire()
         global req_per_minute
         with open(self.queue_address, "a") as f:
+            if self.queue_address[8] == "0":
+                message_counter.inc()
+
             f.write(message + "\n")
             self.length += 1
             req_per_minute += 1
-            message_counter.inc()
         self.lock.release()
 
     def pop(self):
@@ -60,7 +64,6 @@ class Queue:
             message = f.readline().strip()
             self.datapointer += len(message) + 1
             self.length -= 1
-            message_counter.dec()
             req_per_minute += 1
             self.lock.release()
             return message
@@ -77,6 +80,9 @@ def get_message():
         app.logger.info(f"{queue_num, position} not in queus")
         response = "$$"
     else:
+        if queue_num == 0:
+            message_counter.dec()
+
         app.logger.info(f"pointer={queues[(queue_num, position)].datapointer}")
         response = (
             "$$"
@@ -113,12 +119,12 @@ def push_message():
 def ping():
     return "pong"
 
+
 def limiter(host):
     global req_per_minute
     while True:
         req_per_minute = 0
-        time.sleep(10)            
-        
+        time.sleep(10)
 
 
 if __name__ == "__main__":
