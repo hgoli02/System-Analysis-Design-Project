@@ -1,5 +1,4 @@
 version: "3"
-
 services:
   queue:
     image: kalhasti:latest
@@ -35,7 +34,6 @@ services:
       NUMBER_OF_BROKERS : 1
       NUMBER_OF_COPIES : 1
       REPLICA_COUNT : 1
-      IMAGE: 'kalhasti'
 
   prometheus:
     image: prom/prometheus:latest
@@ -46,4 +44,54 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    
+    
+
+version: "3"
+services:
+  queue:
+    image: $MEOW$IMAGE:latest
+    command: python3 server_flask.py --port 8890 --queue db1
+    environment:
+      REPLICA_COUNT : 1
+  
+
+  gateway:
+    container_name: gateway
+    image: $MEOW$IMAGE:latest
+    ports:
+      - 8000:8000
+    command: python3 Server/Gateway.py
+    environment:
+      PORT : 8000
+      BROKER_PORT : 8890
+      BROKER_HOST : "http://system-analysis-design-project-queue" 
+      NUMBER_OF_BROKERS : 1
+      NUMBER_OF_COPIES : 1
+      REPLICA_COUNT : 1
+
+  gateway_backup:
+    container_name: gateway_backup
+    image: $MEOW$IMAGE:latest
+    ports:
+      - 8001:8001
+    command: python3 Server/Gateway.py
+    environment:
+      PORT : 8001
+      BROKER_PORT : 8890
+      BROKER_HOST : "http://system-analysis-design-project-queue" 
+      NUMBER_OF_BROKERS : 1
+      NUMBER_OF_COPIES : 1
+      REPLICA_COUNT : 1
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --storage.tsdb.retention.time=7d
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    
     
