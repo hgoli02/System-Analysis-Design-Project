@@ -54,8 +54,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
           script: |
-            rm -f /root/ci-cd/docker-compose.yml
-            rm -f /root/ci-cd/.env
+            sudo rm -f /root/ci-cd/docker-compose.yml
+            sudo rm -f /root/ci-cd/.env
       - name: Copy docker-compose via ssh
         uses: appleboy/scp-action@master
         with:
