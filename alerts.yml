@@ -1,0 +1,21 @@
+groups:
+  - name: high message
+    rules:
+    - alert: test alert
+      expr: total_messages > 2
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: High message rate.
+
+  - name: High Disk Usage
+    rules:
+    - alert: HostOutOfMemory
+      expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 99
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Host out of memory (instance {{ $labels.instance }})
+        description: Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}

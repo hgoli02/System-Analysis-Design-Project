@@ -29,3 +29,7 @@ remote_write:
     basic_auth:
       username: '1419145'
       password: 'glc_eyJvIjoiMTA1MDk1OCIsIm4iOiJob2dvODg5OS10b2siLCJrIjoidE1kZjk3WjROME84YzB1QTVtNFZQWDMxIiwibSI6eyJyIjoicHJvZC11cy1lYXN0LTAifX0='
+
+
+rule_files:
+  - "./alerts.yml"
