@@ -11,11 +11,14 @@ def push(url, message):
 def pull(url):
     response = requests.get(url + '/pull')
     print('Received from server: ' + response.text)
+    if response.text != "no message":
+        return response.text.split(',')
     return response.text
 
 def subscribe_runner(url):
     while True:
         response = requests.get(url + '/pull')
+        time.sleep(0.005)
         data = response.text
         if data == "no message":
             time.sleep(1)

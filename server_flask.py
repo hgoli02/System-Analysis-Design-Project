@@ -23,7 +23,7 @@ message_counter.set(0)
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
 
 req_per_minute = 0
-THRESHOLD = 700
+THRESHOLD = 70000000
 
 
 # A class for handling the queue through a file
@@ -40,7 +40,7 @@ class Queue:
     def __len__(self):
         return self.length
 
-    def push(self, message):
+    def push(self, key, value):
         self.lock.acquire()
         global req_per_minute
         with open(self.queue_address, "a") as f:
@@ -48,7 +48,7 @@ class Queue:
             if self.queue_address[8] == "0":
                 message_counter.inc()
 
-            f.write(message + "\n")
+            f.write(key + ',' + value + "\n")
             self.length += 1
             req_per_minute += 1
         self.lock.release()
@@ -103,14 +103,18 @@ def push_message():
     data = request.get_json()
 
     value = data.get("value", "error")
+    key = data.get("key","error")
     queue_num = int(data.get("queue", "error"))
+
+    # app.logger.info(f"pushing {key}:{value} to {queue_num}")
+
     position = int(data.get("position", "error"))
     if value != "error":
         if not (queue_num, position) in queues:
             queues[(queue_num, position)] = Queue(
                 queue_address + f"{queue_num}_{position}.txt"
             )
-        queues[(queue_num, position)].push(value)
+        queues[(queue_num, position)].push(key,value)
         return "OK"
     else:
         return "No message received", 400
@@ -121,7 +125,7 @@ def ping():
     return "pong"
 
 
-def limiter(host):
+def limiter():
     global req_per_minute
     while True:
         req_per_minute = 0

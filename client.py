@@ -27,6 +27,8 @@ class PyClient:
         response = requests.get(self.get_url() + '/pull')
         if self.verbose:
             print('Received from server: ' + response.text)
+        if response.text != "no message":
+            return response.text.split(',')
         return response.text
 
     def subscribe_runner(self, url, f):
@@ -36,7 +38,8 @@ class PyClient:
             if data == "no message":
                 time.sleep(1)
             else:
-                f(data)
+                data = data.split(',')
+                f(data[0], data[1])
 
     def subscribe(self, f):
         thread = Thread(target=self.subscribe_runner, args=(self.server_url, f))

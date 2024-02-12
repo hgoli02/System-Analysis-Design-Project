@@ -97,7 +97,7 @@ def push():
     total_messages.inc()
     for i in range(REPLICA_COUNT):
         node, ps = find_next(key, i)
-        data = {"value": value, "queue": i, "position": ps}
+        data = {"value": value,"key":key, "queue": i, "position": ps}
         url = list_nodes[node][0] + ":" + list_nodes[node][1] + "/push"
         if alive_nodes[node]:
             app.logger.info(f"replica {i} goes to {node}, {ps}")
