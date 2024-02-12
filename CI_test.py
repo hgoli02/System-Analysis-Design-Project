@@ -22,7 +22,7 @@ def push_runner(client, id):
 def pull_runner(client, id):
     results = []
     for i in range(NUM):
-        temp = client.pull()
+        _, temp = client.pull()
         results.append(temp)
 
     final_results[id] = results
