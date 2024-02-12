@@ -9,10 +9,10 @@ scrape_configs:
     static_configs:
       - targets: ['system-analysis-design-project-queue-1:8890']
 
-  # - job_name: 'Queue2'
-  #   scrape_interval: 10s
-  #   static_configs:
-  #     - targets: ['system-analysis-design-project-queue-2:8890']
+  - job_name: 'Queue2'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['system-analysis-design-project-queue-2:8890']
 
   - job_name: 'Node_Exporter'
     scrape_interval: 10s
