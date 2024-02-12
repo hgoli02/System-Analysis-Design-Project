@@ -9,6 +9,7 @@
 import random
 from typing import List
 from threading import Lock
+import time
 
 from client import PyClient as Client
 
@@ -48,6 +49,9 @@ for _ in range(SUBSCRIER_COUNT):
 for i in range(TEST_SIZE//2):
     push(f"{key_seq[i]}", f"{i}")
 
+#time.sleep(5)
+#print(pulled)
+
 print("manually fail one node and wait for cluster to become healthy again")
 print("press enter when cluster is healthy")
 input()
@@ -55,7 +59,10 @@ input()
 for i in range(TEST_SIZE//2,TEST_SIZE):
     push(f"{key_seq[i]}", f"{i}")
 
+time.sleep(10)
 pulled.sort()
+#print(pulled)
+
 for i in range(TEST_SIZE):
     if pulled[i]!=i:
         print("DATA loss occurred")

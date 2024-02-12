@@ -9,7 +9,7 @@ for i in range(NUM):
 
 results = []
 for i in range(NUM):
-    temp = client.pull()
+    _ , temp = client.pull()
     results.append(temp)
 
 print(sorted(results))

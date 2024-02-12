@@ -4,7 +4,7 @@ import random
 
 client = Client()
 
-NUM = 100
+NUM = 1000
 c = []
 for i in range(NUM):
     r = random.randint(0, 1000)
@@ -18,7 +18,7 @@ for i in range(NUM // 2):
     a = client.pull()
     time.sleep(0.01)
     print(a)
-    l.append(a)
+    l.append(a[1])
 
 input("enter something to continue")
 
@@ -26,7 +26,7 @@ for i in range(NUM // 2):
     a = client.pull()
     time.sleep(0.01)
     print(a)
-    l.append(a)
+    l.append(a[1])
 
 assert sorted(l) == sorted(c)
 
