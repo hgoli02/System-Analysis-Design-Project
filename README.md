@@ -1,6 +1,6 @@
 # System Analysis Design Project
 
-This project is a system analysis and design project that aims to [briefly describe the purpose of the project].
+This project is a system analysis and design project that aims to develop a distributed dockerized message queue with cool abilites.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -11,14 +11,9 @@ This project is a system analysis and design project that aims to [briefly descr
 
 To set up the project, follow these steps:
 
-1. Clone the repository:
 
-   ```bash
-   git clone https://github.com/your-username/your-repository.git
-
-    cd your-repository
     ```
-2. Usage:
+1. Usage:
 
    ```bash
    docker build . -t kalhasti:latest
@@ -27,7 +22,7 @@ To set up the project, follow these steps:
    ```
    now you have a running instance of the application (check the yaml file for the ports)
 
-3. Clients:
+2. Clients:
 
    We have a few clients that are using our application. They are:
     1- Interactive Python Client
