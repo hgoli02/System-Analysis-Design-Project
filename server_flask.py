@@ -23,7 +23,7 @@ message_counter.set(0)
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
 
 req_per_minute = 0
-THRESHOLD = 70000000
+THRESHOLD = 500
 
 
 # A class for handling the queue through a file
@@ -76,6 +76,8 @@ class Queue:
 def get_message():
     global req_per_minute
     if req_per_minute > THRESHOLD:
+        #shut down the server
+        # exit(529)
         return "The Server Overloaded", 529
     queue_num = int(request.args["queue"])
     position = int(request.args["position"])
@@ -129,7 +131,7 @@ def limiter():
     global req_per_minute
     while True:
         req_per_minute = 0
-        time.sleep(10)
+        time.sleep(60)
 
 
 if __name__ == "__main__":
@@ -149,6 +151,6 @@ if __name__ == "__main__":
     queues = dict()
     # for i in range(REPLICA_COUNT):
     #     queues.append(Queue(queue_address + f"{i}.txt"))
-    limiter = Thread(target=limiter, args=())
-    limiter.start()
+    #limiter = Thread(target=limiter, args=())
+    #limiter.start()
     app.run(debug=False, port=port, host="0.0.0.0", threaded=False)

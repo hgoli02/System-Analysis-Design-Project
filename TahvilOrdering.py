@@ -26,7 +26,7 @@ def subscribe(action):
 
 TEST_SIZE = 3000
 KEY_SIZE = 8
-SUBSCRIER_COUNT = 1
+SUBSCRIER_COUNT = 3
 
 key_seq = [random.choice(range(KEY_SIZE)) for _ in range(TEST_SIZE)]
 

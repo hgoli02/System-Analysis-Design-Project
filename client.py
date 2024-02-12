@@ -19,12 +19,18 @@ class PyClient:
     def push(self, key, value):
         message = key+','+value
         response = requests.post(self.get_url() + '/push', data=message)
+        if response.text == "The Server Overloaded":
+            print("The Server Overloaded")
+            return
         if self.verbose:
             print('Received from server: ' + response.text)
         return response.text
 
     def pull(self):
         response = requests.get(self.get_url() + '/pull')
+        if response.text == "The Server Overloaded":
+            print("The Server Overloaded")
+            return
         if self.verbose:
             print('Received from server: ' + response.text)
         if response.text != "no message":
@@ -35,11 +41,17 @@ class PyClient:
         while True:
             response = requests.get(self.get_url() + '/pull')
             data = response.text
+            if data == "The Server Overloaded":
+                print("The Server Overloaded")
+                #kill the thread
+                break
             if data == "no message":
                 time.sleep(1)
             else:
                 data = data.split(',')
+                #print(data)
                 f(data[0], data[1])
+                time.sleep(0.01)
 
     def subscribe(self, f):
         thread = Thread(target=self.subscribe_runner, args=(self.server_url, f))

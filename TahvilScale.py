@@ -4,8 +4,12 @@
 ### press enter once more and see if you have a increase in throughput rate of the cluster
 
 import multiprocessing
+
+TEST_SIZE = 1000 * 1000
+KEY_SIZE = 8
+SUBSCRIER_COUNT = 4
+
 from client import PyClient as Client
-from multiprocessing import freeze_support
 
 SERVER_ADDRESS = "localhost"
 SERVER_PORT = 8000
@@ -23,9 +27,6 @@ def push(key,val):
 def subscribe(action):
     qc.subscribe(action)
 
-TEST_SIZE = 1000 * 1000
-KEY_SIZE = 8
-SUBSCRIER_COUNT = 4
 
 
 def to_infinity():
@@ -40,13 +41,15 @@ def push_key(key: str):
         push(key, f"{i}")
         print(key, f"{i}")
 
-freeze_support()
 subscribe(lambda key, val: ...)
 
-for i in to_infinity():
-    p = multiprocessing.Process(target=push_key, args=(i,))
-    p.start()
-    print("did it cap?")
-    print("if not, press enter to increase throughput")
-    print("if capped, manually scale up the cluster and press enter to see if you can increase the throughput")
-    input()
+if __name__ == '__main__':  
+
+
+    for i in to_infinity():
+        p = multiprocessing.Process(target=push_key, args=(f'{i}',))
+        p.start()
+        print("did it cap?")
+        print("if not, press enter to increase throughput")
+        print("if capped, manually scale up the cluster and press enter to see if you can increase the throughput")
+        input()

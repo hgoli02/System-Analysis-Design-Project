@@ -155,4 +155,4 @@ if __name__ == "__main__":
         t = threading.Thread(target=upadte_nodes, args=([i]))
         t.start()
     app.logger.info("hash_ring is: " + str(hash_ring))
-    app.run(debug=False, port=PORT, host="0.0.0.0", threaded=True)
+    app.run(debug=False, port=PORT, host="0.0.0.0", threaded=False)
