@@ -28,9 +28,10 @@ class PyClient:
 
     def pull(self):
         response = requests.get(self.get_url() + '/pull')
+        print(response.text)
         if response.text == "The Server Overloaded":
             print("The Server Overloaded")
-            return
+            return "The Server Overloaded", "The Server Overloaded"
         if self.verbose:
             print('Received from server: ' + response.text)
         if response.text != "no message":

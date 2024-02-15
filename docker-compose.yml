@@ -16,7 +16,7 @@ services:
       PORT: 8000
       BROKER_PORT: 8890
       BROKER_HOST: "http://system-analysis-design-project-queue"
-      NUMBER_OF_BROKERS: 2
+      NUMBER_OF_BROKERS: 1
       NUMBER_OF_COPIES: 1
       REPLICA_COUNT: 1
 
@@ -32,10 +32,10 @@ services:
       - ./alerts.yml:/etc/prometheus/alerts.yml
 
 
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"
 
   # node-exporter:
   #   image: quay.io/prometheus/node-exporter:latest
@@ -48,18 +48,18 @@ services:
   #   ports:
   #     - "9100:9100"
 
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    restart: unless-stopped
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    ports:
-      - "9100:9100"
+  # node-exporter:
+  #   image: prom/node-exporter:latest
+  #   container_name: node-exporter
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /:/rootfs:ro
+  #   command:
+  #     - '--path.procfs=/host/proc'
+  #     - '--path.rootfs=/rootfs'
+  #     - '--path.sysfs=/host/sys'
+  #     - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+  #   ports:
+  #     - "9100:9100"

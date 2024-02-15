@@ -23,8 +23,8 @@ message_counter.set(0)
 REPLICA_COUNT = int(os.environ.get("REPLICA_COUNT", 2))
 
 req_per_minute = 0
-THRESHOLD = 500
-
+THRESHOLD = 700
+SLEEP_TIME = 20
 
 # A class for handling the queue through a file
 class Queue:
@@ -65,7 +65,7 @@ class Queue:
             message = f.readline().strip()
             self.datapointer += len(message) + 1
             self.length -= 1
-            req_per_minute += 1
+            #req_per_minute += 1
             if self.queue_address[8] == "0":
                 message_counter.dec()
             self.lock.release()
@@ -131,7 +131,7 @@ def limiter():
     global req_per_minute
     while True:
         req_per_minute = 0
-        time.sleep(60)
+        time.sleep(SLEEP_TIME)
 
 
 if __name__ == "__main__":
@@ -151,6 +151,6 @@ if __name__ == "__main__":
     queues = dict()
     # for i in range(REPLICA_COUNT):
     #     queues.append(Queue(queue_address + f"{i}.txt"))
-    #limiter = Thread(target=limiter, args=())
-    #limiter.start()
+    limiter = Thread(target=limiter, args=())
+    limiter.start()
     app.run(debug=False, port=port, host="0.0.0.0", threaded=False)
