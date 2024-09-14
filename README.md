@@ -9,10 +9,6 @@ This project is a system analysis and design project that aims to develop a dist
 
 ## Installation
 
-To set up the project, follow these steps:
-
-
-    ```
 1. Usage:
 
    ```bash
