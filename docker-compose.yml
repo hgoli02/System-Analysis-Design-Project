@@ -1,14 +1,14 @@
 version: "3"
 services:
   queue:
-    image: kian2003bhd/kalhasti:latest
+    image: kalhasti:latest
     command: python3 server_flask.py --port 8890 --queue db1
     environment:
       REPLICA_COUNT: 1
 
   gateway:
     container_name: gateway
-    image: kian2003bhd/kalhasti:latest
+    image: kalhasti:latest
     ports:
       - 8000:8000
     command: python3 Server/Gateway.py
@@ -32,34 +32,34 @@ services:
       - ./alerts.yml:/etc/prometheus/alerts.yml
 
 
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   ports:
-  #     - "3000:3000"
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
 
-  # node-exporter:
-  #   image: quay.io/prometheus/node-exporter:latest
-  #   container_name: node-exporter
-  #   command:
-  #     - '--path.rootfs=/host'
-  #   restart: unless-stopped
-  #   volumes:
-  #     - '/:/host:ro,rslave'
-  #   ports:
-  #     - "9100:9100"
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - "9100:9100"
 
-  # node-exporter:
-  #   image: prom/node-exporter:latest
-  #   container_name: node-exporter
-  #   restart: unless-stopped
-  #   volumes:
-  #     - /proc:/host/proc:ro
-  #     - /sys:/host/sys:ro
-  #     - /:/rootfs:ro
-  #   command:
-  #     - '--path.procfs=/host/proc'
-  #     - '--path.rootfs=/rootfs'
-  #     - '--path.sysfs=/host/sys'
-  #     - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-  #   ports:
-  #     - "9100:9100"
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
